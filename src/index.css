@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap'); 
+@import "tailwindcss"; 
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --color-icon: #000;
+  --color-primary: #b4853e;
+  --font-body: "Plus Jakarta Sans", sans-serif; /* ✅ use custom font */ --radius: 0.625rem; --background: oklch(1 0 0); --foreground: oklch(0.145 0 0); --card: oklch(1 0 0); --card-foreground: oklch(0.145 0 0); --popover: oklch(1 0 0); --popover-foreground: oklch(0.145 0 0); --primary: oklch(0.205 0 0); --primary-foreground: oklch(0.985 0 0); --secondary: oklch(0.97 0 0); --secondary-foreground: oklch(0.205 0 0); --muted: oklch(0.97 0 0); --muted-foreground: oklch(0.556 0 0); --accent: oklch(0.97 0 0); --accent-foreground: oklch(0.205 0 0); --destructive: oklch(0.577 0.245 27.325); --border: oklch(0.922 0 0); --input: oklch(0.922 0 0); --ring: oklch(0.708 0 0); --chart-1: oklch(0.646 0.222 41.116); --chart-2: oklch(0.6 0.118 184.704); --chart-3: oklch(0.398 0.07 227.392); --chart-4: oklch(0.828 0.189 84.429); --chart-5: oklch(0.769 0.188 70.08); --sidebar: oklch(0.985 0 0); --sidebar-foreground: oklch(0.145 0 0); --sidebar-primary: oklch(0.205 0 0); --sidebar-primary-foreground: oklch(0.985 0 0); --sidebar-accent: oklch(0.97 0 0); --sidebar-accent-foreground: oklch(0.205 0 0); --sidebar-border: oklch(0.922 0 0); --sidebar-ring: oklch(0.708 0 0);
+}
+
+body {
+  font-family: var(--font-body); /* ✅ use the root variable */
+  font-weight: 400;
+}
+
+.icon {
+  font-size: 1.325rem;
+  color: var(--color-icon);
+}
+
+/* put inside globals.css or index.css */
+.section-title{
+    position: relative;
+    color: #333;
+}
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -13px;
+  height:2.5px;
+  width: 65px;
+  border-radius: 2px;
+  background-color: #b5853b; /* gold-ish color */
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left:72px;
+
+  bottom: -13px;
+  height:2.5px;
+  width: 20px;
+  border-radius: 2px;
+  background-color: #b5853b; /* gold-ish color */
+}
+
+.Toastify__toast {
+  font-size: 13px;   /* smaller font */
+}

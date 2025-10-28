@@ -1,0 +1,188 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from '../../api/AxiosInterceptor';
+import { Bounce, toast } from 'react-toastify';
+
+const initialState = {
+  loading: false,
+  user: null,        // store your signed-in user data here
+  error: null,
+  id: null
+};
+
+export const signInUser = createAsyncThunk(
+  'auth/signInUser',
+  async (payload , { rejectWithValue }) => {
+    try {
+      console.log(payload , " 34567654321`2345678654321`23456789765432112345678976543212345678976543213456789765432345678")
+      const response = await axiosInstance.post('/auth/signin', payload);
+      toast.success(response?.message || 'Signed in', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      console.log(response)
+      if(response.success)
+      {
+        payload.setModel("otp");
+      }
+      return response; 
+      
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Error signing in', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+export const otpVerify = createAsyncThunk(
+  'auth/otpVerify',
+  async (payload, { rejectWithValue }) => {
+    try {
+      console.log(payload , " ")
+      const response = await axiosInstance.post('/auth/verify-otp', {id:payload.id, otp:payload.otp} , {withCredentials:true});
+      toast.success(response?.message || 'Verified', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      if(response.success)
+      {
+        payload?.data();
+      }
+      return response; 
+      
+    } catch (error) {
+      payload?.setIsVerifying(false);
+      toast.error(error?.response?.data?.message || 'Error signing in', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const resendOTP = createAsyncThunk(
+  'auth/resendOTP',
+  async (payload, { rejectWithValue }) => {
+    try {
+
+    const response = await axiosInstance.post('/auth/resend-otp', {id:payload.id , otp:payload.otp});
+      toast.success(response?.message || 'Resend OTP', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return response; 
+      
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Error Resend OTP', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const updateuserprofile = createAsyncThunk(
+  'auth/updateuserprofile',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/auth/update', payload);
+      toast.success(response?.message || 'Profile updated', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return response;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Error updating profile', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const getuserprofile = createAsyncThunk(
+  'auth/getuserprofile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get('/auth/getuser');
+      toast.success(response?.message || 'Profile updated', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return response;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Error updating profile', {
+        position: 'top-right',
+        autoClose: 5000,
+        pauseOnHover: true,
+        transition: Bounce,
+      });
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState:{
+    profile:[]
+  },
+  reducers:{},
+  extraReducers: (builder) => {
+    builder
+      .addCase(signInUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signInUser.fulfilled, (state, action) => {
+        state.loading = false;
+        // console.log('State:', state, 'Action:', action, 'Payload:', action.payload);
+        if (action.payload && action.payload._id) {
+          state.id = action.payload._id;
+          state.user = action.payload;
+        } else {
+          console.warn('No _id found in payload:', action.payload);
+        }
+      })
+      .addCase(signInUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getuserprofile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getuserprofile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(getuserprofile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  }
+});
+
+export default authSlice.reducer;
