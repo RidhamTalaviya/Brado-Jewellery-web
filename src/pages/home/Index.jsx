@@ -3,7 +3,6 @@ import HeroSlider from './HeroSlider'
 import CollectionsSlider from './Collections'
 import Category from './Category'
 import SpecialDeal from './SpecialDeal'
-import Carrydream from './Carrydream'
 import Newarrival from './Newarrival'
 import NecklaCeSet from './NacklaCeset'
 import Handwere from './Handwere'
@@ -20,6 +19,7 @@ import Menbracelet from './Menbracelet'
 import Sareepin from './Sareepin'
 import RecentlyViewed from './RecentlyViewed'
 import CustomerTestimonials from './CustomerTestimonials'
+import Carrydream from './CarryDream'
 const HomePages = () => {
   return (
     <>
