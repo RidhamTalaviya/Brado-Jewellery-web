@@ -38,7 +38,7 @@ export const editorder = createAsyncThunk(
   '/editorder',
   async (orderData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/orders/changeOrderStatus', orderData);
+      const response = await axiosInstance.put('/orders/changeOrderStatus', orderData);
 
       console.log(response.data , "response");
       return response; 

@@ -1,10 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 function SubHeader() {
   const navigate = useNavigate();
   const state = useSelector((state) => state?.collections?.collections);
+  
+  const handleCategoryClick = (item) => {
+    // Navigate with state instead of just URL params
+    navigate(`/category/${item.slug}`, {
+      state: {
+        categoryId: item._id,
+        categoryName: item.categoryName,
+        categoryData: item
+      }
+    });
+  };
+
   return (
     <div className="lg:block hidden w-full bg-white z-20 sticky top-0">
       <nav className="border-t border-gray-200">
@@ -13,7 +25,7 @@ function SubHeader() {
             {state.map((item, index) => (
               <li key={index}>
                 <button
-                  onClick={() => navigate(`/category/${item.slug}`)}
+                  onClick={() => handleCategoryClick(item)}
                   style={{ wordSpacing: "3.5px" }}
                   className="relative 
                     text-[#000] text-[13.5px] font-[500] 

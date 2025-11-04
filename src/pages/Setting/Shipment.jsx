@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star, X, Upload } from 'lucide-react';
 import axiosInstance from '../../api/AxiosInterceptor';
 
 const Shipment = () => {
@@ -9,8 +9,15 @@ const Shipment = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  console.log(orderData, "orderData");
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reviewData, setReviewData] = useState({
+    title: '',
+    comment: '',
+    review: '',
+    rating: 0
+  });
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   useEffect(() => {
     fetchOrderDetails();
@@ -20,7 +27,7 @@ const Shipment = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(`/orders/getorderbyorderid/${orderId}`);
-      setOrderData(response.data[0]);
+      setOrderData(response.data);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -28,21 +35,81 @@ const Shipment = () => {
     }
   };
 
-  // Get current order status
   const getCurrentStatus = () => {
-    if (!orderData?.statusTimeline) return 'pending';
+    if (!orderData?.statusTimeline) return { text: 'pending', color: 'bg-yellow-50 text-yellow-600' };
     
-    const lastCompletedStatus = orderData.statusTimeline
+    const cancelled = orderData.statusTimeline.find(s => s.title === 'Cancelled' && s.status === 'completed');
+    if (cancelled) return { text: 'Cancelled', color: 'bg-red-50 text-red-600' };
+    
+    const returned = orderData.statusTimeline.find(s => s.title === 'Returned and Refunded' && s.status === 'completed');
+    if (returned) return { text: 'Returned and Refunded', color: 'bg-red-50 text-red-600' };
+    
+    const lastCompleted = orderData.statusTimeline
       .filter(status => status.status === 'completed')
       .pop();
     
-    if (lastCompletedStatus?.title === 'Order Cancelled') return 'cancelled';
-    if (lastCompletedStatus?.title === 'Delivered') return 'delivered';
-    if (lastCompletedStatus?.title === 'Out for Delivery') return 'out for delivery';
-    if (lastCompletedStatus?.title === 'Shipped') return 'shipped';
-    if (lastCompletedStatus?.title === 'Packed') return 'packed';
-    if (lastCompletedStatus?.title === 'Order Confirmed') return 'confirmed';
-    return 'pending';
+    if (!lastCompleted) return { text: 'Order Placed', color: 'bg-yellow-50 text-yellow-600' };
+    
+    const statusMap = {
+      'Delivered': { text: 'Delivered', color: 'bg-green-50 text-green-600' },
+      'Out for Delivery': { text: 'Out for Delivery', color: 'bg-blue-50 text-blue-600' },
+      'Shipped': { text: 'Shipped', color: 'bg-blue-50 text-blue-600' },
+      'Packed': { text: 'Packed', color: 'bg-yellow-50 text-yellow-600' },
+      'Order Confirmed': { text: 'Order Confirmed', color: 'bg-yellow-50 text-yellow-600' },
+    };
+    
+    return statusMap[lastCompleted.title] || { text: lastCompleted.title, color: 'bg-yellow-50 text-yellow-600' };
+  };
+
+  const isDelivered = () => {
+    if (!orderData?.statusTimeline) return false;
+    const delivered = orderData.statusTimeline.find(s => s.title === 'Delivered' && s.status === 'completed');
+    return !!delivered;
+  };
+
+  const handleWriteReview = (product) => {
+    setSelectedProduct(product);
+    setShowReviewModal(true);
+    setReviewData({
+      title: '',
+      comment: '',
+      review: '',
+      rating: 0
+    });
+  };
+
+  const handleRatingClick = (rating) => {
+    setReviewData(prev => ({ ...prev, rating }));
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewData.rating || !reviewData.title || !reviewData.comment || !reviewData.review) {
+      alert('Please fill all fields and select a rating');
+      return;
+    }
+
+    try {
+      setReviewLoading(true);
+      const payload = {
+        productId: selectedProduct.productId,
+        orderId: orderData._id,
+        title: reviewData.title,
+        comment: reviewData.comment,
+        rating: reviewData.rating.toString()
+      };
+
+      const response = await axiosInstance.post('/review/create', payload);
+      
+      if (response.data.success) {
+        alert('Review submitted successfully!');
+        setShowReviewModal(false);
+        setSelectedProduct(null);
+      }
+    } catch (err) {
+      alert('Failed to submit review: ' + err.message);
+    } finally {
+      setReviewLoading(false);
+    }
   };
 
   if (loading) {
@@ -70,234 +137,349 @@ const Shipment = () => {
   }
 
   const currentStatus = getCurrentStatus();
+  const showReviewButton = isDelivered();
 
   return (
-    <div className="max-w-7xl mx-auto p-4 lg:p-6">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <ArrowLeft 
-          className="w-5 h-5 cursor-pointer hover:text-gray-600" 
-          onClick={() => navigate(-1)} 
-        />
-        <h1 className="text-xl lg:text-2xl font-medium">
-          Order Number <span className="text-[#b4853e]">#{orderData.OrderId}</span>
-        </h1>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <ArrowLeft 
+            className="w-5 h-5 cursor-pointer hover:text-gray-600" 
+            onClick={() => navigate(-1)} 
+          />
+          <h1 className="text-lg lg:text-xl font-normal text-gray-900">
+            Order Number <span className="text-[#b4853e] font-medium">#{orderData.OrderId.split('-')[1]}</span>
+          </h1>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Section - Products */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Shipment Status */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-gray-700 text-sm lg:text-base">
-                Shipment #{orderData.OrderId}
-              </span>
-              <span className={`px-3 py-1 rounded text-xs lg:text-sm font-medium ${
-                currentStatus === 'cancelled'
-                  ? 'bg-red-100 text-red-600' 
-                  : currentStatus === 'delivered'
-                  ? 'bg-green-100 text-green-600'
-                  : currentStatus === 'shipped' || currentStatus === 'out for delivery'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'bg-yellow-100 text-yellow-600'
-              }`}>
-                {currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
-              </span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Section - Products */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Shipment Status */}
+            <div className="bg-gray-50 p-4 rounded">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-gray-700 text-sm">
+                  Shipment <span className="text-[#b4853e]">#{orderData.OrderId.split('-')[1]}</span>
+                </span>
+                <span className={`px-3 py-1 rounded text-xs font-medium ${currentStatus.color}`}>
+                  {currentStatus.text}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Products List */}
-          {orderData.items && orderData.items.map((product, index) => (
-            <div key={index} className="bg-white border rounded-lg p-4">
-              <div className="flex gap-4">
-                {/* Product Image */}
-                <div className="flex-shrink-0">
-                  <img
-                    src={product.imagesUrl?.[0] || 'https://via.placeholder.com/150'}
-                    alt={product.title}
-                    className="w-20 h-20 lg:w-24 lg:h-24 object-cover rounded"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150';
-                    }}
-                  />
-                </div>
+            {/* Products List */}
+            {orderData.items && orderData.items.map((product, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded p-4">
+                <div className="flex gap-4">
+                  {/* Product Image */}
+                  <div className="flex-shrink-0">
+                    <img
+                      src={product.image || 'https://via.placeholder.com/150'}
+                      alt={product.title}
+                      className="w-24 h-28 object-cover rounded"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/150';
+                      }}
+                    />
+                  </div>
 
-                {/* Product Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="text-xs lg:text-sm text-gray-500 mb-1">
-                        SKU: {product.sku}
-                      </p>
-                      <h3 className="font-medium text-sm lg:text-base text-gray-800 mb-2 line-clamp-2">
-                        {product.title}
-                      </h3>
-                      <div className="flex items-center gap-2 lg:gap-3 mb-2 flex-wrap">
-                        <span className="text-base lg:text-lg font-semibold text-gray-900">
-                          ₹{product.discountPrice}
-                        </span>
-                        {product.price > product.discountPrice && (
-                          <span className="text-xs lg:text-sm text-gray-400 line-through">
-                            ₹{product.price}
+                  {/* Product Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 mb-1">
+                          SKU: {product.sku}
+                        </p>
+                        <h3 className="font-normal text-sm text-gray-900 mb-3 line-clamp-2">
+                          {product.title}
+                        </h3>
+                        
+                        {/* Price */}
+                        <div className="mb-2">
+                          <span className="text-lg font-normal text-gray-900">
+                            ₹{product.discountPrice?.toLocaleString('en-IN')}
                           </span>
+                        </div>
+
+                        {/* Bulk Deal/Offer Discount */}
+                        {product.applicableOffer && (
+                          <p className="text-xs text-green-600 mb-2">
+                            Bulk Deal Discount: ₹{product.itemOfferDiscount?.toLocaleString('en-IN')}
+                          </p>
                         )}
-                        {product.discount > 0 && (
-                          <span className="text-xs lg:text-sm text-green-600">
-                            ({product.discount}% OFF)
-                          </span>
+
+                        {/* Quantity */}
+                        <p className="text-sm text-gray-600 mb-3">
+                          Qty: {product.quantity}
+                        </p>
+
+                        {/* Write Review Button */}
+                        {showReviewButton && (
+                          <button
+                            onClick={() => handleWriteReview(product)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#b4853e] text-white text-sm rounded hover:bg-[#9a6f35] transition-colors"
+                          >
+                            <Star className="w-4 h-4" />
+                            Write Review
+                          </button>
                         )}
                       </div>
-                      <p className="text-xs lg:text-sm text-gray-600">
-                        Qty: {product.quantity}
-                      </p>
-                    </div>
 
-                    {/* Price on Right */}
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-base lg:text-lg font-semibold text-gray-900">
-                        ₹{product.totalPrice}
-                      </p>
+                      {/* Total Price on Right */}
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-lg font-normal text-gray-900">
+                          ₹{(product.itemMRP - product.itemDiscount - (product.itemOfferDiscount || 0))?.toLocaleString('en-IN')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Right Section - Address & Summary */}
-        <div className="space-y-4">
-          {/* Address Card */}
-          <div className="bg-white border rounded-lg p-4 lg:p-6">
-            <h2 className="text-base lg:text-lg font-semibold mb-4">Address</h2>
-
-            {/* Delivery Address */}
-            {orderData.shippingAddress && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Delivery Address</h3>
-                <p className="text-sm lg:text-base text-gray-800 font-medium">
-                  {orderData.shippingAddress.contactPersonName}
-                </p>
-                <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                  {orderData.shippingAddress.addressLine1}
-                  {orderData.shippingAddress.addressLine2 && `, ${orderData.shippingAddress.addressLine2}`}
-                </p>
-                {orderData.shippingAddress.landmark && (
-                  <p className="text-xs lg:text-sm text-gray-600">
-                    Landmark: {orderData.shippingAddress.landmark}
-                  </p>
-                )}
-                <p className="text-xs lg:text-sm text-gray-600">
-                  {orderData.shippingAddress.city}, {orderData.shippingAddress.state} - {orderData.shippingAddress.pinCode}
-                </p>
-                {orderData.shippingAddress.contactNo && (
-                  <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                    Mobile No: {orderData.shippingAddress.contactNo}
-                  </p>
-                )}
-                {orderData.shippingAddress.email && (
-                  <p className="text-xs lg:text-sm text-gray-600">
-                    Email: {orderData.shippingAddress.email}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Billing Address */}
-            {orderData.billingAddress && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Billing Address</h3>
-                {orderData.isBillingAddressSame ? (
-                  <p className="text-xs lg:text-sm text-gray-600">Same as delivery address</p>
-                ) : (
-                  <>
-                    <p className="text-sm lg:text-base text-gray-800 font-medium">
-                      {orderData.billingAddress.contactPersonName}
-                    </p>
-                    <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                      {orderData.billingAddress.addressLine1}
-                      {orderData.billingAddress.addressLine2 && `, ${orderData.billingAddress.addressLine2}`}
-                    </p>
-                    {orderData.billingAddress.landmark && (
-                      <p className="text-xs lg:text-sm text-gray-600">
-                        Landmark: {orderData.billingAddress.landmark}
-                      </p>
-                    )}
-                    <p className="text-xs lg:text-sm text-gray-600">
-                      {orderData.billingAddress.city}, {orderData.billingAddress.state} - {orderData.billingAddress.pinCode}
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
+            ))}
           </div>
 
-          {/* Order Summary Card */}
-          <div className="bg-white border rounded-lg p-4 lg:p-6">
-            <h2 className="text-base lg:text-lg font-semibold mb-4">Order Summary</h2>
+          {/* Right Section - Address & Summary */}
+          <div className="space-y-4">
+            {/* Address Card */}
+            <div className="bg-white border border-gray-200 rounded p-5">
+              <h2 className="text-base font-semibold mb-4 text-gray-900">Address</h2>
 
-            <div className="space-y-2 lg:space-y-3 mb-4">
-              <div className="flex justify-between text-xs lg:text-sm">
-                <span className="text-gray-600">Order Created</span>
-                <span className="text-gray-800">
-                  {new Date(orderData.orderDate).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-
-              <div className="flex justify-between text-xs lg:text-sm">
-                <span className="text-gray-600">Payment Method</span>
-                <span className="text-gray-800">{orderData.paymentMethod}</span>
-              </div>
-
-              <div className="flex justify-between text-xs lg:text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-800">₹{orderData.subtotal || 0}</span>
-              </div>
-
-              {orderData.couponDiscount > 0 && (
-                <div className="flex justify-between text-xs lg:text-sm text-green-600">
-                  <span className="text-gray-600">Coupon Discount</span>
-                  <span>-₹{orderData.couponDiscount}</span>
+              {/* Delivery Address */}
+              {orderData.shippingAddress && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-900 mb-2">Delivery Address</h3>
+                  <p className="text-sm text-gray-900 font-medium mb-1">
+                    {orderData.shippingAddress.contactPersonName}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {orderData.shippingAddress.addressLine1}
+                    {orderData.shippingAddress.addressLine2 && `, ${orderData.shippingAddress.addressLine2}`}
+                    {orderData.shippingAddress.landmark && `, ${orderData.shippingAddress.landmark}`}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {orderData.shippingAddress.city}, {orderData.shippingAddress.state} - {orderData.shippingAddress.pinCode}
+                  </p>
+                  {orderData.shippingAddress.contactNo && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Mobile No: {orderData.shippingAddress.contactNo}
+                    </p>
+                  )}
                 </div>
               )}
 
-              {orderData.shippingFee > 0 && (
-                <div className="flex justify-between text-xs lg:text-sm">
-                  <span className="text-gray-600">Shipping Fee</span>
-                  <span className="text-gray-800">₹{orderData.shippingFee}</span>
+              {/* Billing Address */}
+              {orderData.billingAddress && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900 mb-2">Billing Address</h3>
+                  {orderData.isBillingAddressSame ? (
+                    <p className="text-sm text-gray-600">Same as delivery address</p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-gray-600">
+                        {orderData.billingAddress.addressLine1}
+                        {orderData.billingAddress.addressLine2 && `, ${orderData.billingAddress.addressLine2}`}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {orderData.billingAddress.city}, {orderData.billingAddress.state} - {orderData.billingAddress.pinCode}
+                      </p>
+                      {orderData.billingAddress.gstNo && (
+                        <p className="text-sm text-gray-600">
+                          GST No: {orderData.billingAddress.gstNo}
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </div>
 
-            <div className="border-t pt-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm lg:text-base font-semibold text-gray-800">Total</span>
-                <span className="text-lg lg:text-xl font-bold text-gray-900">
-                  ₹{orderData.totalAmount || 0}
-                </span>
-              </div>
-            </div>
+            {/* Order Summary Card */}
+            <div className="bg-white border border-gray-200 rounded p-5">
+              <h2 className="text-base font-semibold mb-4 text-gray-900">Order Summary</h2>
 
-            {orderData.estimatedDeliveryDate && currentStatus !== 'cancelled' && currentStatus !== 'delivered' && (
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-xs lg:text-sm text-blue-800">
-                  <span className="font-medium">Estimated Delivery:</span>{' '}
-                  {new Date(orderData.estimatedDeliveryDate).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
-                </p>
+              <div className="space-y-3">
+                {/* Order Created */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Order Created</span>
+                  <span className="text-gray-900">
+                    {new Date(orderData.orderDate).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
+
+                {/* Total MRP */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Total MRP</span>
+                  <span className="text-gray-900">₹{orderData.total_mrp?.toLocaleString('en-IN')}</span>
+                </div>
+
+                {/* Product Discount */}
+                {orderData.total_product_discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Product Discount</span>
+                    <span className="text-green-600">-₹{orderData.total_product_discount?.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+                {/* Offer Discount */}
+                {orderData.total_offer_discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Offer Discount</span>
+                    <span className="text-green-600">-₹{orderData.total_offer_discount?.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+                {/* Coupon Discount */}
+                {orderData.couponDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Coupon Discount</span>
+                    <span className="text-green-600">-₹{orderData.couponDiscount?.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+
+                {/* Shipping Fee */}
+                {orderData.shippingFee > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">{orderData.paymentMethod === 'COD' ? 'COD Charge' : 'Shipping Fee'}</span>
+                    <span className="text-gray-900">₹{orderData.shippingFee?.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Total */}
+              <div className="border-t mt-4 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-semibold text-gray-900">Total</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    ₹{orderData.net_payable?.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Estimated Delivery */}
+              {orderData.estimatedDeliveryDate && currentStatus.text !== 'Cancelled' && currentStatus.text !== 'Delivered' && (
+                <div className="mt-4 p-3 bg-blue-50 rounded">
+                  <p className="text-xs text-blue-800">
+                    <span className="font-medium">Estimated Delivery:</span>{' '}
+                    {new Date(orderData.estimatedDeliveryDate).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold text-gray-900">Write a Review</h2>
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Product Info */}
+              {selectedProduct && (
+                <div className="flex gap-4 p-4 bg-gray-50 rounded">
+                  <img
+                    src={selectedProduct.image || 'https://via.placeholder.com/150'}
+                    alt={selectedProduct.title}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                  <div>
+                    <h3 className="font-medium text-gray-900">{selectedProduct.title}</h3>
+                    <p className="text-sm text-gray-600">SKU: {selectedProduct.sku}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Rating */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Rating <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-8 h-8 cursor-pointer transition-colors ${
+                        star <= reviewData.rating
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                      onClick={() => handleRatingClick(star)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Review Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={reviewData.title}
+                  onChange={(e) => setReviewData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter review title"
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#b4853e]"
+                />
+              </div>
+
+              
+
+              {/* Comment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Detailed Review <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={reviewData.comment}
+                  onChange={(e) => setReviewData(prev => ({ ...prev, comment: e.target.value }))}
+                  placeholder="Share your experience with this product..."
+                  rows={5}
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#b4853e] resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 p-6 border-t">
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                disabled={reviewLoading}
+                className="flex-1 px-4 py-2 bg-[#b4853e] text-white rounded hover:bg-[#9a6f35] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {reviewLoading ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

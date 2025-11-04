@@ -242,7 +242,9 @@ const handleAddToWishlist = (id) => {
 
   const handleQuantityChange = (type) => {
     if (type === "increase") {
-      setQuantity((prev) => prev + 1);
+      if(quantity < state?.stock){
+        setQuantity((prev) => prev + 1);
+      }
     } else if (type === "decrease" && quantity > 1) {
       setQuantity((prev) => prev - 1);
     }

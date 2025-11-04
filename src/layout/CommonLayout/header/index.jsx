@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { Heart, LogOut, MapPin, Package, User, Wallet } from "lucide-react";
 import { fetchCartData } from "../../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { clearWishlist } from "../../../redux/slices/wishlistSlice";
 
 
 const Header = () => {
@@ -48,6 +49,14 @@ const Header = () => {
     if (!isSearchOpen) {
       setQuery("");
       setResults([]);
+    }
+  };
+
+  const handleWishlist = () => {
+    if(Cookies.get("token")) {
+      navigate("/wishlist");
+    } else {
+      setIsForm(true);
     }
   };
 
@@ -115,6 +124,7 @@ const Header = () => {
 
   const userlogout = () => {
     Cookies.remove("token");
+    dispatch(clearWishlist());
     navigate("/");
   };
 
@@ -251,7 +261,7 @@ const Header = () => {
 
               <div className="flex items-center space-x-1">
                 <button
-                  onClick={() => navigate("/wishlist")}
+                  onClick={handleWishlist}
                   className="py-2 mx-2 cursor-pointer  rounded-full transition-colors"
                   aria-label="Wishlist"
                 >

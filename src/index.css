@@ -50,3 +50,121 @@ body {
 .Toastify__toast {
   font-size: 13px;   /* smaller font */
 }
+
+/* Round button pulse animation */
+
+
+/* Order Success Checkmark Animation
+@keyframes border-scale1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-border { 
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 0px solid #15803d;
+  background: #0b6e4080;
+  animation: border-scale1 1.5s ease-in-out infinite;
+  z-index: 0;
+} */
+
+/* Apply Coupon Button */
+.apply-coupon-btn {
+  border: none;
+  outline: none;
+  background-color: #0e854d !important;
+  color: #fff !important;
+  border-radius: 0.25rem;
+  height: 2.25rem;
+  padding: 0 1rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.apply-coupon-btn:hover {
+  background-color: #0d7543 !important;
+}
+
+/* Apply Coupon Button Pulse Animation */
+.apply-coupon-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0.25rem;
+  border: 0 solid #0e854d;
+  background-color: rgba(14, 133, 77, 0.5);
+  width: 100%;
+  height: 100%;
+  animation: border-scale-after 1.5s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes border-scale-after {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.3, 1.5);
+    opacity: 0;
+  }
+}
+
+/* Order Success Checkmark Animation */
+@keyframes border-scale1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-border { 
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 0px solid #15803d;
+  background: #0b6e4080;
+  animation: border-scale1 1.5s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* Order Success Checkmark Animation */
+@keyframes border-scale1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-border { 
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 0px solid #15803d;
+  background: #0b6e4080;
+  animation: border-scale1 1.5s ease-in-out infinite;
+  z-index: 0;
+}

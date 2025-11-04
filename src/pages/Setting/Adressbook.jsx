@@ -12,6 +12,8 @@ import { indianStateList } from "../../utils/indian_state_list";
 export default function AddressManager() {
   const dispatch = useDispatch();
   const { addresses, status, error } = useSelector((state) => state.address);
+
+  console.log("addresses:", addresses);
   
   const [INDIAN_STATES] = useState(indianStateList);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +23,9 @@ export default function AddressManager() {
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const dropdownRefs = useRef({});
+
+  // Ensure addresses is always an array
+  const addressList = Array.isArray(addresses) ? addresses : [];
 
   // Fetch addresses on mount
   useEffect(() => {
@@ -69,12 +74,12 @@ export default function AddressManager() {
 
       if (data[0]?.Status === "Success" && data[0]?.PostOffice?.length > 0) {
         const postOffice = data[0].PostOffice[0];
-        setValues({
-          ...values,
+        setValues((prevValues) => ({
+          ...prevValues,
           pincode: pincode,
-          city: postOffice.District || values.city,
-          state: postOffice.State || values.state,
-        });
+          city: postOffice.District || prevValues.city || "",
+          state: postOffice.State || prevValues.state || "",
+        }));
       }
     } catch (error) {
       console.error("Error fetching pincode data:", error);
@@ -103,15 +108,15 @@ export default function AddressManager() {
   const handleEdit = (addr) => {
     setEditingId(addr._id || addr.id);
     setValues({
-      name: addr.name,
-      contactNumber: addr.contactNumber || addr.contact,
+      name: addr.name || "",
+      contactNumber: addr.contactNumber || addr.contact || "",
       email: addr.email || "",
-      address1: addr.address1,
+      address1: addr.address1 || "",
       address2: addr.address2 || "",
       landMark: addr.landMark || addr.landmark || "",
-      city: addr.city,
-      state: addr.state,
-      pincode: addr.pincode,
+      city: addr.city || "",
+      state: addr.state || "",
+      pincode: addr.pincode || "",
       country: addr.country || "India",
       isDefault: addr.isDefault || false,
     });
@@ -124,15 +129,15 @@ export default function AddressManager() {
     e.preventDefault();
 
     const addressData = {
-      name: values.name,
-      contactNumber: values.contactNumber,
+      name: values.name || "",
+      contactNumber: values.contactNumber || "",
       email: values.email || "",
-      address1: values.address1,
+      address1: values.address1 || "",
       address2: values.address2 || "",
       landMark: values.landMark || "",
-      city: values.city,
-      state: values.state,
-      pincode: values.pincode,
+      city: values.city || "",
+      state: values.state || "",
+      pincode: values.pincode || "",
       country: values.country || "India",
       isDefault: values.isDefault || false,
     };
@@ -157,21 +162,21 @@ export default function AddressManager() {
   return (
     <div className="space-y-6">
       {/* Loading State */}
-      {status === "loading" && addresses.length === 0 && (
+      {status === "loading" && addressList.length === 0 && (
         <div className="text-center py-12">
           <p>Loading addresses...</p>
         </div>
       )}
 
       {/* Error State */}
-      {status === "failed" && (
+      {status === "failed" && error && (
         <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
-          <p>Error: {error}</p>
+          <p>Error: {typeof error === 'string' ? error : 'Failed to load addresses'}</p>
         </div>
       )}
 
       {/* If no addresses → Empty State */}
-      {!addresses || addresses.length === 0 ? (
+      {addressList.length === 0 && status !== "loading" ? (
         <div className="bg-white p-12 text-center rounded-lg shadow">
           <div className="mb-6">
             <div className="mx-auto w-40 h-30 flex items-center justify-center mb-4">
@@ -189,89 +194,95 @@ export default function AddressManager() {
         </div>
       ) : (
         // If addresses exist → Show address list
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-normal text-gray-800">Address Book</h2>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="text-[#b4853e] hover:text-[#9a6f32] font-normal transition"
-            >
-              + Add New Address
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {addresses.map((addr) => (
-              <div
-                key={addr._id || addr.id}
-                className="bg-white p-4 border border-gray-200 rounded relative"
+        addressList.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-normal text-gray-800">Address Book</h2>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-[#b4853e] hover:text-[#9a6f32] font-normal transition"
               >
-                {/* 3-dot menu */}
-                <div
-                  className="absolute top-4 right-4"
-                  ref={(el) => (dropdownRefs.current[addr._id || addr.id] = el)}
-                >
-                  <div className="relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenId(openId === (addr._id || addr.id) ? null : (addr._id || addr.id));
-                      }}
-                      className="text-gray-600 hover:text-gray-800"
+                + Add New Address
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {addressList.map((addr) => {
+                const addressId = addr._id || addr.id;
+                return (
+                  <div
+                    key={addressId}
+                    className="bg-white p-4 border border-gray-200 rounded relative"
+                  >
+                    {/* 3-dot menu */}
+                    <div
+                      className="absolute peer px-1 top-4 right-4"
+                      ref={(el) => (dropdownRefs.current[addressId] = el)}
                     >
-                      <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor">
-                        <circle cx="2" cy="2" r="2"/>
-                        <circle cx="2" cy="8" r="2"/>
-                        <circle cx="2" cy="14" r="2"/>
-                      </svg>
-                    </button>
+                      <div className="relative">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenId(openId === addressId ? null : addressId);
+                          }}
+                          className="text-gray-600 px-1 cursor-pointer hover:text-gray-800"
+                        >
+                          <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor">
+                            <circle cx="2" cy="2" r="2"/>
+                            <circle cx="2" cy="8" r="2"/>
+                            <circle cx="2" cy="14" r="2"/>
+                          </svg>
+                        </button>
 
-                    {/* Dropdown menu */}
-                    {openId === (addr._id || addr.id) && (
-                      <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded border border-gray-200 z-10">
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(addr);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(addr._id || addr.id);
-                          }}
-                        >
-                          Delete
-                        </button>
+                        {/* Dropdown menu */}
+                        {openId === addressId && (
+                          <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded border border-gray-200 z-10">
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(addr);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(addressId);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Address details */}
-                <div className="pr-8">
-                  <h3 className="text-gray-900 font-medium mb-2">{addr.name}</h3>
-                  <p className="text-sm text-gray-600 mb-1">
-                    {addr.contactNumber || addr.contact}
-                  </p>
-                  {addr.email && (
-                    <p className="text-sm text-gray-600 mb-2">{addr.email}</p>
-                  )}
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {addr.address1}
-                    {addr.address2 && `, ${addr.address2}`}
-                    {(addr.landMark || addr.landmark) && `, ${addr.landMark || addr.landmark}`}
-                    {`, ${addr.city}-${addr.pincode}, ${addr.state}, India`}
-                  </p>
-                </div>
-              </div>
-            ))}
+                    {/* Address details */}
+                    <div className="pr-8">
+                      <h3 className="text-gray-900 font-medium mb-2">{addr.name || "Unknown"}</h3>
+                      <p className="text-sm text-gray-600 mb-1">
+                        {addr.contactNumber || addr.contact || "No contact"}
+                      </p>
+                      {addr.email && (
+                        <p className="text-sm text-gray-600 mb-2">{addr.email}</p>
+                      )}
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {addr.address1 || ""}
+                        {addr.address2 && `, ${addr.address2}`}
+                        {(addr.landMark || addr.landmark) && `, ${addr.landMark || addr.landmark}`}
+                        {addr.city && addr.pincode && addr.state && 
+                          `, ${addr.city}-${addr.pincode}, ${addr.state}, India`}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )
       )}
 
       {/* Modal */}

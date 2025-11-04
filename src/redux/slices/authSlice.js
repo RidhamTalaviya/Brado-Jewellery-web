@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/AxiosInterceptor';
 import { Bounce, toast } from 'react-toastify';
+import { fetchWishlist } from './wishlistSlice';
+import { fetchCartData } from './cartSlice';
 
 const initialState = {
   loading: false,
@@ -41,7 +43,7 @@ export const signInUser = createAsyncThunk(
 );
 export const otpVerify = createAsyncThunk(
   'auth/otpVerify',
-  async (payload, { rejectWithValue }) => {
+  async (payload, { rejectWithValue , dispatch }) => {
     try {
       console.log(payload , " ")
       const response = await axiosInstance.post('/auth/verify-otp', {id:payload.id, otp:payload.otp} , {withCredentials:true});
@@ -54,6 +56,9 @@ export const otpVerify = createAsyncThunk(
       if(response.success)
       {
         payload?.data();
+        dispatch(fetchWishlist());
+        dispatch(fetchCartData());
+        
       }
       return response; 
       

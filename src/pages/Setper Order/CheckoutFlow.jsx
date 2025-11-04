@@ -1,7 +1,7 @@
 // src/components/checkout/CheckoutFlow.jsx
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Home } from 'lucide-react';
+import { Home, ShoppingCart } from 'lucide-react';
 
 import StepIndicator from './StepIndicator';
 import CouponModal from './home/CouponModal';
@@ -9,16 +9,20 @@ import ShoppingCartStep from './ShoppingCartStep';
 import AddressStep from './AddressStep';
 import PaymentStep from './PaymentStep';
 import CompleteStep from './CompleteStep';
-
-import { createOrder } from '../../redux/slices/orderSlice'; // <-- adjust path if needed
+import emptyCartImg from '../../assets/images/cart.png'; // <-- your image
+import { createOrder } from '../../redux/slices/orderSlice';
 
 const CheckoutFlow = () => {
   const dispatch = useDispatch();
 
   /* ---------- Redux data ---------- */
-  const cart = useSelector((state) => state?.cart?.cart[0]);  
-  const [appliedCoupon , setAppliedCoupon] = useState(null)             // cart object
-  // coupon object (or null)
+  const cart = useSelector((state) => state?.cart?.cart[0]); // cart object
+  // console.log(cart , "cart")  
+
+
+  
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // coupon object (or null)
+  console.log(appliedCoupon , "appliedCoupon , appliedCoupon")
 
   /* ---------- UI state ---------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -26,7 +30,7 @@ const CheckoutFlow = () => {
   const [createdOrder, setCreatedOrder] = useState(null);
   const [errors, setErrors] = useState({});
 
-  /* ---------- Address form state (lifted from AddressStep) ---------- */
+  /* ---------- Address form state ---------- */
   const [formData, setFormData] = useState({
     contactName: '',
     email: '',
@@ -49,9 +53,8 @@ const CheckoutFlow = () => {
     gstNo: '',
   });
 
-  /* ---------- Payment & shipping selection (lifted from PaymentStep) ---------- */
+  /* ---------- Payment & shipping ---------- */
   const [paymentMethod, setPaymentMethod] = useState('prepaid'); // 'prepaid' | 'cod'
-  const [shippingMethod] = useState('standard');                // not used in payload
 
   /* ---------- Handlers ---------- */
   const handleInputChange = (e) => {
@@ -63,26 +66,15 @@ const CheckoutFlow = () => {
   };
 
   const nextStep = async () => {
-    console.log(appliedCoupon , "appliedCoupon")
-    // --------------------------------------------------------------
-    // STEP 3 → place order (API call)
-    // --------------------------------------------------------------
     if (currentStep === 3) {
-      /* ---- 1. Build items array (productId + quantity) ---- */
       const items = cart?.products?.map((p) => ({
-        productId: p.productId,          // <-- MongoDB ObjectId from cart
+        productId: p.productId,
         quantity: p.quantity,
       })) || [];
 
-      console.log(items , "items")
-
-      /* ---- 2. Coupon (id only, null if none) ---- */
       const couponcode = appliedCoupon || null;
-
-      /* ---- 3. Payment method (API expects "COD" or "PREPAID") ---- */
       const formattedPaymentMethod = paymentMethod === 'prepaid' ? 'PREPAID' : 'COD';
 
-      /* ---- 4. Shipping address (always required) ---- */
       const shippingAddress = {
         contactPersonName: formData.contactName,
         contactNo: `+91 | ${formData.contactNo}`,
@@ -95,7 +87,6 @@ const CheckoutFlow = () => {
         pinCode: formData.pinCode,
       };
 
-      /* ---- 5. Billing address (same as shipping if checkbox true) ---- */
       let billingAddress = shippingAddress;
       const isBillingAddressSame = formData.sameAddress;
 
@@ -113,7 +104,6 @@ const CheckoutFlow = () => {
         };
       }
 
-      /* ---- 6. Final payload (exactly matches the API contract) ---- */
       const orderPayload = {
         items,
         couponcode,
@@ -125,9 +115,8 @@ const CheckoutFlow = () => {
 
       try {
         const result = await dispatch(createOrder(orderPayload)).unwrap();
-        // result contains { success: true, order: {...} }
         setCreatedOrder(result.order);
-        setCurrentStep(4); // move to completion step
+        setCurrentStep(4);
       } catch (err) {
         console.error('Order creation failed:', err);
         alert(err?.message || 'Failed to place order. Please try again.');
@@ -135,9 +124,6 @@ const CheckoutFlow = () => {
       return;
     }
 
-    // --------------------------------------------------------------
-    // Normal step progression (1 → 2 → 3)
-    // --------------------------------------------------------------
     if (currentStep < 4) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -147,7 +133,35 @@ const CheckoutFlow = () => {
     if (currentStep > 1) setCurrentStep((prev) => prev - 1);
   };
 
-  /* ---------- Render the current step ---------- */
+  /* ---------- Empty Cart UI ---------- */
+  const EmptyCartUI = () => (
+    <section className="container mx-auto px-4 py-12 min-h-[70vh] flex flex-col justify-center items-center gap-6 text-center">
+      <div className="relative">
+        <img
+          src={emptyCartImg}
+          alt="Empty Cart"
+          width={289}
+          height={200}
+          className="mx-auto"
+          loading="lazy"
+        />
+      </div>
+      <div className="space-y-2">
+        <h6 className="text-2xl font-semibold text-gray-800">Your cart is empty!</h6>
+        <p className="text-gray-600 max-w-md mx-auto">
+          There is nothing in your cart. Let’s add some items.
+        </p>
+        <a
+          href="/"
+          className="inline-block mt-4 px-8 py-3 bg-[#b4853e] text-white font-medium rounded-full hover:bg-[#a07734] transition-colors"
+        >
+          Continue Shopping
+        </a>
+      </div>
+    </section>
+  );
+
+  /* ---------- Render Step ---------- */
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -189,32 +203,38 @@ const CheckoutFlow = () => {
     }
   };
 
-  /* ---------- JSX ---------- */
+  /* ---------- Early Return: Empty Cart ---------- */
+  if (!cart || !cart.products || cart.products.length === 0 ) {
+    return <EmptyCartUI />;
+  }
+
+  /* ---------- Normal Checkout Flow ---------- */
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen ">
       {/* Breadcrumb */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Home className="w-4 h-4" />
             <span>Home</span>
             <span>›</span>
-            <span>Shopping Cart</span>
+            <span className="font-medium text-gray-900">Shopping Cart</span>
           </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="container mx-auto px-4 py-8">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <StepIndicator currentStep={currentStep} />
-        {renderStep()}
+        <div className="mt-8">{renderStep()}</div>
       </div>
 
-      {/* Coupon modal – rendered once at the root */}
+      {/* Coupon Modal */}
       <CouponModal
         showCouponModal={showCouponModal}
         setShowCouponModal={setShowCouponModal}
         appliedCoupon={appliedCoupon}
+        setAppliedCoupon={setAppliedCoupon} // pass setter if needed
       />
     </div>
   );

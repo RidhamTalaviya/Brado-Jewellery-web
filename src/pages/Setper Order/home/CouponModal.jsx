@@ -3,8 +3,9 @@ import { X } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCouponData } from '../../../redux/slices/couponSlice';
 import { fetchCartData } from '../../../redux/slices/cartSlice';
+import Couponimg from '../../../assets/images/coupon.png';
 
-const CouponModal = ({ showCouponModal, setShowCouponModal , appliedCoupon}) => {
+const CouponModal = ({ showCouponModal, setShowCouponModal, appliedCoupon, setAppliedCoupon }) => {
   if (!showCouponModal) return null;
 
   const dispatch = useDispatch();
@@ -14,22 +15,20 @@ const CouponModal = ({ showCouponModal, setShowCouponModal , appliedCoupon}) => 
 
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [couponInput, setCouponInput] = useState('');
-
-  console.log(appliedCoupon , "appliedCoupon  CouponModal");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  console.log(appliedCoupon, "appliedCoupon CouponModal");
 
   useEffect(() => {
     dispatch(fetchCouponData());
   }, [dispatch]);
 
-  // Use actual current date instead of hardcoded date
   const currentDate = new Date();
 
   const validCoupons = coupon.filter((c) => {
     const start = new Date(c.startDate);
     const end = new Date(c.endDate);
     
-    // All validation conditions
     const isActive = c.isActive;
     const isAfterStart = currentDate >= start;
     const isBeforeEnd = currentDate <= end;
@@ -44,6 +43,12 @@ const CouponModal = ({ showCouponModal, setShowCouponModal , appliedCoupon}) => 
       setApplyingCoupon(true);
       try {
         await dispatch(fetchCartData(selectedCoupon.code)).unwrap();
+        
+        // Set the applied coupon ID
+
+        console.log(selectedCoupon , "selectedCoupon selectedCoupon")
+        setAppliedCoupon(selectedCoupon._id);
+        
         setShowCouponModal(false);
         setCouponInput('');
         setSelectedCoupon(null);
@@ -58,29 +63,34 @@ const CouponModal = ({ showCouponModal, setShowCouponModal , appliedCoupon}) => 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 relative">
-        <button
-          onClick={() => setShowCouponModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-2">Save Big Today!</h3>
-          <p className="text-gray-600 text-sm">
-            Redeem your coupon and save big on your order today!
-          </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-md w-full relative overflow-hidden">
+        {/* Modal Header */}
+        <div className="flex items-start justify-between p-6 pb-4 border-b border-gray-200">
+          <div className="flex-1">
+            <h4 className="text-xl font-semibold text-gray-900 mb-1">Save Big Today!</h4>
+            <p className="text-sm text-gray-600 mt-1">
+              Redeem your coupon and save big on your order today!
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCouponModal(false)}
+            className="text-gray-400 hover:text-gray-600 ml-4 flex-shrink-0 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="flex flex-col gap-4 mb-8">
-          <div className="flex gap-2">
+        {/* Modal Body */}
+        <div className="p-6">
+          {/* Coupon Input */}
+          <div className="flex items-center gap-2 mb-6">
             <input
               type="text"
+              id="code"
               placeholder="Enter coupon code"
               value={couponInput}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#e6e6e6] focus:border-[#e6e6e6] transition-all"
               onChange={(e) => {
                 const code = e.target.value.toUpperCase();
                 setCouponInput(code);
@@ -91,80 +101,87 @@ const CouponModal = ({ showCouponModal, setShowCouponModal , appliedCoupon}) => 
             <button
               onClick={handleApplyCoupon}
               disabled={applyingCoupon || !selectedCoupon}
-              className="px-6 py-3 bg-[#b4853e] text-white rounded-lg hover:bg-[#a0753a] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-[#b4853e] text-white rounded-lg text-sm font-medium hover:bg-[#a0753a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               {applyingCoupon ? 'Applying...' : 'Apply'}
             </button>
           </div>
 
-          {status === 'succeeded' && validCoupons.length > 0 && (
-            <div className="mt-4 space-y-3 max-h-60 overflow-y-auto">
-              {validCoupons.map((c) => {
-                const savingsAmount = Math.round((cart?.total_amount * c.discountpercentageValue) / 100);
-                
-                return (
-                  <div
-                    key={c._id}
-                    className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedCoupon?._id === c._id 
-                        ? 'border-amber-500 bg-amber-50 shadow-sm' 
-                        : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                    }`}
-                    onClick={() => {
-                      setSelectedCoupon(c);
-                      setCouponInput(c.code);
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-800">{c.code}</span>
-                      <span className="text-sm font-semibold text-amber-600">
-                        {c.discountpercentageValue}% OFF
-                      </span>
+          {/* Coupons List */}
+          <div className="max-h-[30rem] overflow-y-auto">
+            {status === 'succeeded' && validCoupons.length > 0 && (
+              <div className="space-y-3 pr-1">
+                {validCoupons.map((c) => {
+                  const savingsAmount = c.discountType === "percentage" 
+                    ? Math.round((cart?.total_amount * c.discountpercentageValue) / 100)
+                    : c.discountfixedValue;
+                  
+                  return (
+                    <div
+                      key={c._id}
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        selectedCoupon?._id === c._id 
+                          ? 'border-[#b4853e] bg-[#fffbf5] shadow-sm' 
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                      onClick={() => {
+                        setSelectedCoupon(c);
+                        setCouponInput(c.code);
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-lg font-bold text-gray-900 tracking-wide">
+                          {c.code}
+                        </h3>
+                        <span className="text-base font-bold text-[#ff8c00]">
+                          {c.discountType === "percentage" 
+                            ? `${c.discountpercentageValue}%` 
+                            : `₹${c.discountfixedValue}`} OFF
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Min Order: ₹{c.minOrderAmount} | Valid until {new Date(c.endDate).toLocaleDateString('en-GB')}
+                      </p>
+                      <p className="text-sm text-green-600 font-medium">
+                        ✓ You save ₹{savingsAmount}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Min Order: ₹{c.minOrderAmount} | Valid until {new Date(c.endDate).toLocaleDateString()}
-                    </p>
-                    <p className="text-xs text-green-600 mt-1">
-                      ✓ You save ₹{savingsAmount}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
 
-          {status === 'succeeded' && validCoupons.length === 0 && (
-            <div className="text-center py-4">
-              <div className="relative inline-block mb-6">
-                <div className="absolute -top-2 -left-2 text-amber-300 text-2xl">✦</div>
-                <div className="absolute -top-1 -right-3 text-amber-400 text-lg">✦</div>
-                <div className="absolute -bottom-2 left-1/2 text-amber-300 text-xl">✦</div>
-
-                <div className="relative bg-white border-2 border-dashed border-amber-400 rounded-lg p-6 w-32 h-24 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-amber-600">%</div>
-                  </div>
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-gray-50 rounded-full"></div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-gray-50 rounded-full"></div>
+            {/* No Coupons Available */}
+            {status === 'succeeded' && validCoupons.length === 0 && (
+              <div className="flex flex-col items-center justify-center gap-6 py-8 text-center">
+                <div className="flex justify-center">
+                  <img 
+                    src={Couponimg} 
+                    alt="No Coupons" 
+                    className="w-[133px] h-[105px] object-contain"
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-lg font-semibold text-gray-900">
+                    We couldn't find any coupons!
+                  </p>
+                  <span className="text-sm text-gray-600 leading-relaxed max-w-[320px]">
+                    No coupons are eligible for your cart. Please add something else to your cart and try again!
+                  </span>
                 </div>
               </div>
+            )}
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                No coupons available right now!
-              </h4>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                No coupons match your cart requirements. Try adding more items or check back later!
-              </p>
-            </div>
-          )}
-
-          {status === 'loading' && (
-            <p className="text-center text-sm text-gray-600">Loading coupons...</p>
-          )}
-          
-          {status === 'failed' && (
-            <p className="text-center text-sm text-red-600">Failed to load coupons. Try again!</p>
-          )}
+            {/* Loading State */}
+            {status === 'loading' && (
+              <p className="text-center text-sm text-gray-600 py-8">Loading coupons...</p>
+            )}
+            
+            {/* Error State */}
+            {status === 'failed' && (
+              <p className="text-center text-sm text-red-600 py-8">Failed to load coupons. Try again!</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

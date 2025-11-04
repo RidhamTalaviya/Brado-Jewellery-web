@@ -7,6 +7,8 @@ import OrderSummary from './home/OrderSummary';
 const ShoppingCartStep = ({ cart, nextStep, currentStep, setShowCouponModal }) => {
   const dispatch = useDispatch();
 
+  
+
   // Handle quantity update for CartItem
   const handleQuantityUpdate = (productId, newQuantity) => {
     if (newQuantity >= 1) {

@@ -8,6 +8,8 @@ import { addToWishlist, removeFromWishlist } from '../../redux/slices/wishlistSl
 import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createCartData } from '../../redux/slices/cartSlice';
+import SignIn from '../../pages/auth/signIn/SignIn';
+import Cookies from 'js-cookie';
 
 /* Badge colors */
 const BADGE_COLORS = {
@@ -18,6 +20,7 @@ const BADGE_COLORS = {
 const Card = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isform, setisform] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,14 +36,25 @@ const Card = ({ product }) => {
 
   // Add to cart
   const addToCart = (id) => {
-    dispatch(createCartData({ productId: id }));
+
+    if(Cookies.get("token")){
+      dispatch(createCartData({ productId: id }));
+    }else{
+      setisform(true);
+    }
+    
+  };
+   const closeSignInModal = () => {
+    setisform(false);
   };
 
   // Toggle wishlist
   const handleWishlistToggle = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
     setIsLoading(true);
+    if(Cookies.get("token")){
     try {
       if (isInWishlist) {
         await dispatch(removeFromWishlist(product._id)).unwrap();
@@ -52,6 +66,9 @@ const Card = ({ product }) => {
     } finally {
       setIsLoading(false);
     }
+  }else{
+    setisform(true);
+  }
   };
 
   // Navigate to product
@@ -74,6 +91,7 @@ const Card = ({ product }) => {
   }
 
   return (
+    <>
     <div className="bg-white overflow-hidden relative group hover:transition duration-300">
       {/* Image */}
       <div className="relative cursor-pointer">
@@ -126,7 +144,7 @@ const Card = ({ product }) => {
             e.stopPropagation();
             addToCart(product._id);
           }}
-          className="absolute left-0 right-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
+          className="cursor-pointer absolute left-0 right-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
         >
           <button className="w-full bg-white text-gray-800 px-4 py-2 text-sm rounded-none">
             <div className="p-2 border border-gray-300 rounded-[1px] flex items-center justify-center gap-2">
@@ -163,6 +181,14 @@ const Card = ({ product }) => {
         {product.offerText && <OfferBadge text={product.offerText} />}
       </div>
     </div>
+        {isform && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={closeSignInModal}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <SignIn open={true} onClose={closeSignInModal} data={closeSignInModal} />
+          </div>
+        </div>
+      )}
+      </>
   );
 };
 
