@@ -17,8 +17,8 @@ import Menbracelet from './Menbracelet'
 import Sareepin from './Sareepin'
 import RecentlyViewed from './RecentlyViewed'
 import CustomerTestimonials from './CustomerTestimonials'
-import Carrydream from './Carrydream'
 import Newarrival from './Newarrival'
+import Carrydream from './Carrydream'
 const HomePages = () => {
   return (
     <>
