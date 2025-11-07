@@ -80,6 +80,20 @@ export const removeCartData = createAsyncThunk(
   }
 );
 
+export const clearCartData = createAsyncThunk(
+  '/clearCartData',
+  async (_, { rejectWithValue , dispatch }) => {
+    try {
+      const response = await axiosInstance.post('/cart/clear');
+      if(response?.success){
+        dispatch(fetchCartData());        
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to clear cart data');
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
@@ -87,7 +101,11 @@ const cartSlice = createSlice({
     status: 'idle', 
     error: null,
   },
-  reducers: {},
+  reducers: {
+    clearCart: (state) => {
+      state.cart = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCartData.pending, (state) => {
@@ -105,4 +123,5 @@ const cartSlice = createSlice({
   },
 });
 
+export const { clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

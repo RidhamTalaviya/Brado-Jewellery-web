@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { fetchAddressData } from '../../redux/slices/addressSlice';
 
+import Address from '../../assets/images/adress.png';
+
 // Address Selection Modal Component
 const AddressSelectionModal = ({ isOpen, onClose, onSelectAddress , formData , setFormData }) => {
   const [selectedId, setSelectedId] = useState(null);
@@ -40,10 +42,10 @@ const AddressSelectionModal = ({ isOpen, onClose, onSelectAddress , formData , s
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold">Select Delivery Address</h2>
+    <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden">
+        <div className="flex items-center justify-between p-6 ">
+          <h2 className="text-[16px] font-medium">Select Delivery Address</h2>
           <button 
             onClick={onClose} 
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -103,23 +105,20 @@ const AddressSelectionModal = ({ isOpen, onClose, onSelectAddress , formData , s
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              No saved addresses found
+            <div className="text-center flex flex-col items-center gap-1 space-y-2">
+              <img src={Address} alt="" className="w-24 h-24" />
+              <p className="font-medium mb-1 " style={{wordSpacing: '5px'}}>No Address yet!</p>
+              <span className="text-[14px] text-gray-500" style={{wordSpacing: '3px'}}>You haven't added any address!</span>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-3 p-6 border-t">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
+        {addresses?.length > 0 && <div className="flex justify-end gap-3 px-5 pb-6 ">
+         
           <button
             onClick={handleApply}
             disabled={!selectedId}
-            className={`px-8 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-6 py-2 rounded-md text-[14px]  transition-colors ${
               selectedId
                 ? 'bg-[#b4853e] text-white hover:bg-[#a0753a]'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -127,7 +126,7 @@ const AddressSelectionModal = ({ isOpen, onClose, onSelectAddress , formData , s
           >
             Apply
           </button>
-        </div>
+          </div>}
       </div>
     </div>
   );
@@ -217,33 +216,34 @@ const AddressStep = ({ formData, handleInputChange, errors, setErrors , nextStep
 
               {/* Contact No. with +91 prefix */}
               <div className="relative w-full">
-                <label
-                  className={`absolute left-3 px-1 transition-all duration-200 pointer-events-none z-10 ${
-                    focusedField === 'contactNo' || formData.contactNo
-                      ? '-top-2.5 text-xs text-[#b4853e] bg-white'
-                      : 'top-3 text-sm text-gray-400'
-                  }`}
-                >
-                  Contact No.
-                </label>
-                <div className="flex">
-                  <span className="inline-flex items-center px-4 py-3 border border-r-0 border-gray-300 rounded-l bg-gray-50 text-gray-700 font-medium text-sm">
-                    +91
-                  </span>
-                  <input
-                    type="text"
-                    name="contactNo"
-                    value={formData.contactNo || ""}
-                    onChange={handleInputChange}
-                    onFocus={() => setFocusedField('contactNo')}
-                    onBlur={() => setFocusedField(null)}
-                    className={`flex-1 px-3 py-3 border rounded-r focus:outline-none text-sm transition-colors ${
-                      focusedField === 'contactNo' ? 'border-[#b4853e]' : 'border-gray-300'
-                    }`}
-                    maxLength="10"
-                  />
-                </div>
-              </div>
+  <input
+    type="text"
+    name="contactNo"
+    value={formData.contactNo || ""}
+    onChange={handleInputChange}
+    onFocus={() => setFocusedField('contactNo')}
+    onBlur={() => setFocusedField(null)}
+    className={`w-full pl-16 pr-3 py-3 border rounded focus:outline-none text-sm transition-colors ${
+      focusedField === 'contactNo' ? 'border-[#b4853e]' : 'border-gray-300'
+    }`}
+    maxLength="10"
+  />
+  <label
+    className={`absolute left-3 px-1 transition-all duration-200 pointer-events-none bg-white ${
+      focusedField === 'contactNo' || formData.contactNo
+        ? '-top-2.5 text-xs text-[#b4853e]'
+        : 'top-3 text-sm text-gray-400'
+    }`}
+  >
+    Contact No.
+  </label>
+  {(focusedField === 'contactNo' || formData.contactNo) && (
+    <div className="absolute left-0 top-0 bottom-0 flex items-center pointer-events-none">
+      <span className="pl-3 pr-2 text-gray-700 font-medium text-sm">+91</span>
+      <div className="w-px h-6 bg-gray-300"></div>
+    </div>
+  )}
+</div>
             </div>
 
             {/* Email */}

@@ -130,20 +130,10 @@ export const getuserprofile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get('/auth/getuser');
-      toast.success(response?.message || 'Profile updated', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+     
       return response;
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error updating profile', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+     
       return rejectWithValue(error.response?.data);
     }
   }

@@ -18,7 +18,7 @@ function SubHeader() {
   };
 
   return (
-    <div className="lg:block hidden w-full bg-white z-20 sticky top-0">
+    <div className="lg:block hidden w-full bg-white z-10 sticky top-0 " style={{boxShadow: "0 4px 4px 0 rgba(0, 0, 0, .04)"}}>
       <nav className="border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <ul className="flex justify-center items-center space-x-5 pt-2.5 pb-3 px-2">

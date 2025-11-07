@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
                 element: <Wallate />,
               },
               {
-                path: "shipment/:orderId",
+                path: "orders/:orderId",
                 element: <Shipment />,
               },
             ]

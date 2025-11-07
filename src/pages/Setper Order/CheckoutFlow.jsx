@@ -1,5 +1,5 @@
 // src/components/checkout/CheckoutFlow.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Home, ShoppingCart } from 'lucide-react';
 
@@ -11,6 +11,7 @@ import PaymentStep from './PaymentStep';
 import CompleteStep from './CompleteStep';
 import emptyCartImg from '../../assets/images/cart.png'; // <-- your image
 import { createOrder } from '../../redux/slices/orderSlice';
+import Breadcrumb from '../../components/common/Breadcrumb';
 
 const CheckoutFlow = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,23 @@ const CheckoutFlow = () => {
   
   const [appliedCoupon, setAppliedCoupon] = useState(null); // coupon object (or null)
   console.log(appliedCoupon , "appliedCoupon , appliedCoupon")
+
+  const getStepLabel = (step) => {
+  switch (step) {
+    case 1:
+      return 'Shopping Cart';
+    case 2:
+      return 'Address Summary';
+    case 3:
+      return 'Shipping & Payment Summary';
+    case 4:
+      return 'Complete';
+    default:
+      return 'Shopping Cart';
+  }
+};
+
+
 
   /* ---------- UI state ---------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -52,6 +70,7 @@ const CheckoutFlow = () => {
     companyName: '',
     gstNo: '',
   });
+
 
   /* ---------- Payment & shipping ---------- */
   const [paymentMethod, setPaymentMethod] = useState('prepaid'); // 'prepaid' | 'cod'
@@ -212,7 +231,7 @@ const CheckoutFlow = () => {
   return (
     <div className="min-h-screen ">
       {/* Breadcrumb */}
-      <div className="bg-white shadow-sm border-b">
+      {/* <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Home className="w-4 h-4" />
@@ -221,7 +240,8 @@ const CheckoutFlow = () => {
             <span className="font-medium text-gray-900">Shopping Cart</span>
           </div>
         </div>
-      </div>
+      </div> */}
+<Breadcrumb label={getStepLabel(currentStep)}/>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">

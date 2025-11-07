@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, X, Upload } from 'lucide-react';
+import { useParams, useNavigate, data } from 'react-router-dom';
+import { ArrowLeft, Star, X, Upload, AlertTriangle } from 'lucide-react';
 import axiosInstance from '../../api/AxiosInterceptor';
+import cancel from '../../assets/images/cancel.png';
+import { editorder, getOrder } from '../../redux/slices/orderSlice';
+import { useDispatch } from 'react-redux';
 
 const Shipment = () => {
   const { orderId } = useParams();
@@ -9,8 +12,13 @@ const Shipment = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reviewEligibility, setReviewEligibility] = useState({});
+
+
+  console.log(reviewEligibility , "reviewEligibility");
   const [reviewData, setReviewData] = useState({
     title: '',
     comment: '',
@@ -23,10 +31,13 @@ const Shipment = () => {
     fetchOrderDetails();
   }, [orderId]);
 
+  const dispatch = useDispatch();
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(`/orders/getorderbyorderid/${orderId}`);
+
+      console.log(response.data , "response.data");
       setOrderData(response.data);
       setLoading(false);
     } catch (err) {
@@ -34,6 +45,48 @@ const Shipment = () => {
       setLoading(false);
     }
   };
+  const checkAllProducts = async () => {
+    if (orderData && isDelivered()) {
+      const eligibilityChecks = {};
+      
+      for (const item of orderData.items) {
+
+        console.log(item.productId , "item.productId");
+        const result = await checkReviewEligibility(item.productId);
+
+
+        eligibilityChecks[item.productId] = result;
+
+        
+      }
+      
+      console.log(eligibilityChecks , "eligibilityChecks");
+      setReviewEligibility(eligibilityChecks);
+    }
+  };
+  useEffect(() => {
+  
+  checkAllProducts();
+}, [orderData]);
+
+
+const checkReviewEligibility = async (productId) => {
+  try {
+    const response = await axiosInstance.get('/review/check-eligibility', {
+      params: {
+        productId: productId,
+        orderId: orderData._id
+      }
+    });
+    console.log(response.reviewData , "response.reviewData");
+    return response;
+  } catch (err) {
+    console.error('Error checking review eligibility:', err);
+    return { canReview: false, reason: 'Error checking eligibility' };
+  }
+};
+ 
+
 
   const getCurrentStatus = () => {
     if (!orderData?.statusTimeline) return { text: 'pending', color: 'bg-yellow-50 text-yellow-600' };
@@ -67,15 +120,41 @@ const Shipment = () => {
     return !!delivered;
   };
 
-  const handleWriteReview = (product) => {
-    setSelectedProduct(product);
-    setShowReviewModal(true);
-    setReviewData({
-      title: '',
-      comment: '',
-      review: '',
-      rating: 0
-    });
+  // const handleWriteReview = (product) => {
+  //   setSelectedProduct(product);
+  //   setShowReviewModal(true);
+  //   setReviewData({
+  //     title: '',
+  //     comment: '',
+  //     review: '',
+  //     rating: 0
+  //   });
+  // };
+
+  const handleWriteReview = async (product) => {
+  const eligibility = reviewEligibility[product.productId];
+  
+  if (!eligibility?.canReview) {
+    if (eligibility?.reviewData) {
+      alert('You have already reviewed this product');
+      // Optionally show existing review
+      return;
+    }
+    alert(eligibility?.reason || 'Cannot write review at this time');
+    return;
+  }
+  
+  setSelectedProduct(product);
+  setShowReviewModal(true);
+  setReviewData({
+    title: '',
+    comment: '',
+    rating: 0
+  });
+};
+
+   const canCancel = (status) => {
+    return status !== "Delivered" && status !== "Cancelled" && status !== "Returned and Refunded";
   };
 
   const handleRatingClick = (rating) => {
@@ -83,7 +162,7 @@ const Shipment = () => {
   };
 
   const handleSubmitReview = async () => {
-    if (!reviewData.rating || !reviewData.title || !reviewData.comment || !reviewData.review) {
+    if (!reviewData.rating || !reviewData.title || !reviewData.comment ) {
       alert('Please fill all fields and select a rating');
       return;
     }
@@ -100,10 +179,10 @@ const Shipment = () => {
 
       const response = await axiosInstance.post('/review/create', payload);
       
-      if (response.data.success) {
-        alert('Review submitted successfully!');
+      if (response.success) {
         setShowReviewModal(false);
         setSelectedProduct(null);
+        checkAllProducts();
       }
     } catch (err) {
       alert('Failed to submit review: ' + err.message);
@@ -140,7 +219,7 @@ const Shipment = () => {
   const showReviewButton = isDelivered();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto p-4 lg:p-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -215,15 +294,36 @@ const Shipment = () => {
                         </p>
 
                         {/* Write Review Button */}
-                        {showReviewButton && (
+                        {/* {showReviewButton && (
                           <button
                             onClick={() => handleWriteReview(product)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#b4853e] text-white text-sm rounded hover:bg-[#9a6f35] transition-colors"
+                            className="flex cursor-pointer items-center text-[12px] gap-2 px-4 py-2 bg-[#b4853e] text-white text-sm rounded hover:bg-[#9a6f35] transition-colors"
                           >
-                            <Star className="w-4 h-4" />
                             Write Review
                           </button>
-                        )}
+                        )} */}
+
+                        {showReviewButton && (
+  <>
+    {reviewEligibility[product.productId]?.canReview ? (
+      <button
+        onClick={() => handleWriteReview(product)}
+        className="flex cursor-pointer items-center text-[12px] gap-2 px-4 py-2 bg-[#b4853e] text-white text-sm rounded hover:bg-[#9a6f35] transition-colors"
+      >
+        Write Review
+      </button>
+    ) : reviewEligibility[product.productId]?.reviewData ? (
+      <p className="text-xs font-medium text-green-600 flex items-center gap-1">
+        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        Already reviewed
+      </p>
+    ) : (
+      <p className="text-xs text-gray-500">
+        {reviewEligibility[product.productId]?.reason || 'Review not available'}
+      </p>
+    )}
+  </>
+)}
                       </div>
 
                       {/* Total Price on Right */}
@@ -237,6 +337,24 @@ const Shipment = () => {
                 </div>
               </div>
             ))}
+            {/* {canCancel(status) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Are you sure you want to cancel this order?')) {
+                          dispatch(editorder({ OrderId: orderItem._id, status: "Cancelled" }))
+                            .unwrap()
+                            .then(() => dispatch(getOrder()))
+                            .catch((err) => console.error("Failed to cancel order:", err));
+                        }
+                      }}
+                      className="text-sm text-red-600 hover:text-red-800 px-4 py-2 hover:bg-red-50 rounded-md transition-colors font-medium"
+                    >
+                      Cancel Order
+                    </button>
+                  )} */}
+
+    <button onClick={() => setIsModalOpen(true)} className="text-[13px] cursor-pointer text-gray-700 border border-gray-200 px-4 py-2 rounded">Cancel Order</button>
           </div>
 
           {/* Right Section - Address & Summary */}
@@ -377,10 +495,59 @@ const Shipment = () => {
           </div>
         </div>
       </div>
+ {isModalOpen && (
+        <div className="fixed inset-0 bg-black/25 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          {/* Modal Container */}
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={24} />
+            </button>
 
+            {/* Modal Content */}
+            <div className="p-6 text-center flex flex-col items-center">
+              {/* Icon */}
+              <img src={cancel} alt="" />
+
+              {/* Title */}
+              <h4 style={{wordSpacing:"2px"}} className="text-[16px] font-medium text-gray-900 mb-1 pt-4">
+                Cancel Confirmation
+              </h4>
+
+              {/* Description */}
+              <p style={{wordSpacing:"2px"}} className="text-gray-600 mb-6 text-[14px]">
+                Are you sure to cancel your order?
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border cursor-pointer border-gray-200 text-[13px] text-gray-600 rounded hover:bg-gray-50 transition-colors"
+                >
+                  Keep Order
+                </button>
+                <button
+                  onClick={(e) => {
+                        e.stopPropagation();
+                          dispatch(editorder({ OrderId: orderData._id, status: "Cancelled" }))
+                            .unwrap()
+                            navigate('/orders')
+                      }}
+                  className="px-4 py-2 bg-[#b5853b] cursor-pointer text-[13px] text-white rounded hover:bg-[#b5843bde] transition-colors"
+                >
+                  Cancel Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Review Modal */}
       {showReviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b">

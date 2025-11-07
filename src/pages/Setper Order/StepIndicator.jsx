@@ -1,4 +1,3 @@
-// StepIndicator component (unchanged)
 import React from 'react';
 import {
   ShoppingCart,
@@ -16,7 +15,7 @@ const StepIndicator = ({ currentStep }) => {
   ];
 
   return (
-    <div className="my-4 bg-white">
+    <div className="my-4 bg-white z-5">
       <div className="relative flex justify-between items-start max-w-3xl mx-auto">
         {/* Background line */}
         <div
@@ -44,16 +43,32 @@ const StepIndicator = ({ currentStep }) => {
         {steps.map((step) => (
           <div
             key={step.id}
-            className="flex flex-col items-center relative z-10 text-center"
+            className="flex flex-col items-center relative z-5 text-center"
           >
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center mb-3 text-sm font-medium ${
-                currentStep >= step.id
+                currentStep > step.id
+                  ? "bg-[#b4853e] text-white"
+                  : currentStep === step.id
                   ? "bg-[#b4853e] text-white"
                   : "bg-[#f4f3ef] text-gray-600"
               }`}
             >
-              {step.id}
+              {currentStep > step.id ? (
+                <svg
+                  stroke="currentColor"
+                  fill="currentColor"
+                  strokeWidth="0"
+                  viewBox="0 0 24 24"
+                  height="1.5em"
+                  width="1.5em"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="m10 15.586-3.293-3.293-1.414 1.414L10 18.414l9.707-9.707-1.414-1.414z"></path>
+                </svg>
+              ) : (
+                step.id
+              )}
             </div>
             <span
               className={`text-xs font-medium whitespace-nowrap ${

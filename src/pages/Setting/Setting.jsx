@@ -67,10 +67,10 @@ const ProfileDashboard = () => {
                     <button
                       key={item.id}
                       onClick={() => navigate(item.id)}
-                      className={`w-full flex border-b border-gray-300 items-center space-x-3 px-2 py-2 text-left transition-all duration-200 text-[14px] ${
+                      className={`w-full flex border-b border-gray-300 items-center space-x-3 px-2 py-2 text-left transition-all duration-200 text-[14px] cursor-pointer ${
                         location.pathname === item.id
                           ? 'text-[#b4853e]'
-                          : 'text-gray-600 hover:text-gray-900 text-[14px]'
+                          : 'text-[#101828] text-[14px]'
                       }`}
                     >
                       <Icon size={20} />

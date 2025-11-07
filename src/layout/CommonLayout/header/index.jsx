@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import SignIn from "../../../pages/auth/signIn/SignIn";
 import Cookies from "js-cookie";
 import { Heart, LogOut, MapPin, Package, User, Wallet } from "lucide-react";
-import { fetchCartData } from "../../../redux/slices/cartSlice";
+import { clearCart, fetchCartData } from "../../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { clearWishlist } from "../../../redux/slices/wishlistSlice";
 
@@ -125,7 +125,9 @@ const Header = () => {
   const userlogout = () => {
     Cookies.remove("token");
     dispatch(clearWishlist());
+    dispatch(clearCart());
     navigate("/");
+
   };
 
   const closeSignInModal = () => {

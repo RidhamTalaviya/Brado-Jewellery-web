@@ -1,13 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/AxiosInterceptor';
+import { clearCartData } from '../slices/cartSlice';
 
 export const createOrder = createAsyncThunk(
   '/createOrder',
-  async (orderData, { rejectWithValue }) => {
+  async (orderData, { rejectWithValue , dispatch }) => {
     try {
       const response = await axiosInstance.post('/orders/create', orderData);
 
       console.log(response.data , "response");
+
+      if(response?.success){
+        dispatch(clearCartData());        
+      }
       return response; 
 
 

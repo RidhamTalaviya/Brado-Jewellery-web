@@ -437,7 +437,7 @@ const handleAddToWishlist = (id) => {
               <p className="text-sm text-gray-600 mb-2">SKU: {state?.sku}</p>
               <h1 className="text-2xl font-medium text-gray-900 mb-4">{state?.name || state?.title}</h1>
 
-              <Rating rating={4.7} reviewCount={state?.reviews?.length || 0} />
+              <Rating rating={state?.averageRating} reviewCount={state?.totalReviews || 0} />
 
               <OfferBanner offers={state?.offers} />
 

@@ -161,23 +161,13 @@ export default function AddressManager() {
 
   return (
     <div className="space-y-6">
-      {/* Loading State */}
-      {status === "loading" && addressList.length === 0 && (
-        <div className="text-center py-12">
-          <p>Loading addresses...</p>
-        </div>
-      )}
+      
 
-      {/* Error State */}
-      {status === "failed" && error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-md">
-          <p>Error: {typeof error === 'string' ? error : 'Failed to load addresses'}</p>
-        </div>
-      )}
+      
 
       {/* If no addresses → Empty State */}
       {addressList.length === 0 && status !== "loading" ? (
-        <div className="bg-white p-12 text-center rounded-lg shadow">
+        <div className="bg-white p-12 text-center rounded-lg ">
           <div className="mb-6">
             <div className="mx-auto w-40 h-30 flex items-center justify-center mb-4">
               <img src={add} alt="No Address" />
@@ -187,7 +177,7 @@ export default function AddressManager() {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#b4853e] text-white px-8 py-3 rounded-md cursor-pointer hover:bg-[#9a6f32] transition"
+            className="bg-[#b4853e] text-white px-8 py-3 rounded-md cursor-pointer  hover:bg-[#9a6f32] transition"
           >
             Add New Address
           </button>
@@ -296,7 +286,7 @@ export default function AddressManager() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div className="sticky top-0 z-2 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h2 className="text-lg font-normal text-gray-900">
                 {editingId ? "Edit Address" : "Add New Address"}
               </h2>
@@ -311,7 +301,7 @@ export default function AddressManager() {
             </div>
 
             {/* FORM */}
-            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
+            <form className="p-6 space-y-4 z-0" onSubmit={handleSubmit}>
               {/* Name */}
               <div className="relative w-full">
                 <label

@@ -180,7 +180,7 @@ function Order() {
               <div
                 key={orderItem._id}
                 className="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
-                onClick={() => navigate(`/shipment/${orderItem.OrderId}`)}
+                onClick={() => navigate(`/orders/${orderItem.OrderId}`)}
               >
                 {/* Card Header */}
                 <div className="flex justify-between items-center px-5 py-4 bg-[#fafaf8] border-b border-gray-200">
@@ -220,9 +220,9 @@ function Order() {
                         {firstItem.title}
                       </h3>
                       
-                      {remainingCount > 0 && (
+                      {orderItem?.total_quantity > 1 && (
                         <p className="text-sm text-gray-700 mb-3 font-medium">
-                          + {remainingCount} More Product{remainingCount > 1 ? 's' : ''}
+                          + {orderItem?.total_quantity -1 } More Product{remainingCount > 1 ? 's' : ''}
                         </p>
                       )}
 
@@ -258,22 +258,7 @@ function Order() {
                     View Timeline
                   </button>
                   
-                  {canCancel(status) && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (window.confirm('Are you sure you want to cancel this order?')) {
-                          dispatch(editorder({ OrderId: orderItem._id, status: "Cancelled" }))
-                            .unwrap()
-                            .then(() => dispatch(getOrder()))
-                            .catch((err) => console.error("Failed to cancel order:", err));
-                        }
-                      }}
-                      className="text-sm text-red-600 hover:text-red-800 px-4 py-2 hover:bg-red-50 rounded-md transition-colors font-medium"
-                    >
-                      Cancel Order
-                    </button>
-                  )}
+                  
                 </div>
               </div>
             );

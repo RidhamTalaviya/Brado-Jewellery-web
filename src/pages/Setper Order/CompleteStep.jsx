@@ -2,10 +2,13 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 // import './CompleteStep.css'; // Import the CSS file
 
 const CompleteStep = ({ order }) => {
   const cart = useSelector((state) => state?.cart?.cart[0]);
+
+  const navigate = useNavigate();
 
   if (!order) {
     return <div className="text-center py-8">Loading order details...</div>;
@@ -18,14 +21,14 @@ const CompleteStep = ({ order }) => {
   `;
 
   return (
-    <div className="max-w-3xl mx-auto text-center w-[80%]">
+    <div className="max-w-3xl mx-auto text-center w-[80%] z-0">
       <div className="bg-[#f8f8f8] rounded-lg p-[35px] mb-8">
         <div className="grid md:grid-cols-2 gap-6 text-left">
           <div className="text-center">
             {/* Animated Success Icon */}
             <div className="relative flex items-center justify-center mx-auto mb-6 w-24 h-24">
               <span className="pulse-border"></span>
-              <div className="relative z-10 bg-[#30aa71] w-full h-full rounded-full flex items-center justify-center">
+              <div className="relative z-2 bg-[#30aa71] w-full h-full rounded-full flex items-center justify-center">
                 <Check className="w-12 h-12 text-white" />
               </div>
             </div>
@@ -60,10 +63,10 @@ const CompleteStep = ({ order }) => {
         </div>
       </div>
       <div className="flex justify-center gap-4">
-        <button className="px-6 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+        <button onClick={() => navigate('/')} className="px-6 py-2 cursor-pointer bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
           Continue Shopping
         </button>
-        <button className="px-6 py-2 bg-[#b4853e] text-white rounded hover:bg-[#a0753a] transition-colors">
+        <button onClick={() => navigate('/orders')} className="px-6 py-2 cursor-pointer bg-[#b4853e] text-white rounded hover:bg-[#a0753a] transition-colors">
           View Order
         </button>
       </div>

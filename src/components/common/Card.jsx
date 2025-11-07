@@ -18,6 +18,9 @@ const BADGE_COLORS = {
 };
 
 const Card = ({ product }) => {
+
+
+  console.log(product);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isform, setisform] = useState(false);
@@ -163,9 +166,9 @@ const Card = ({ product }) => {
         >
           {product.title}
         </h3>
-
-        {product.rating && <StarRating rating={product.rating} size={16} />}
-
+<div className="mt-1">
+        {product.averageRating && <StarRating rating={product.averageRating} size={16}  />}
+</div>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-sm md:text-base font-semibold">
             ₹{product.discountPrice}
@@ -178,7 +181,18 @@ const Card = ({ product }) => {
           </span>
         </div>
 
-        {product.offerText && <OfferBadge text={product.offerText} />}
+        {product?.offers?.[0]?.active && <OfferBadge text={product?.offers?.[0]?.title} />}
+        {
+          product.stock < 15 && product.stock !== 0 && (
+            <span className="text-[14px] font-medium text-red-500">Only {product.stock} left</span>
+          )
+        }
+
+        {
+          product.stock === 0 && (
+            <span className="text-[14px] font-medium text-red-500">Out of Stock</span>
+          )
+        }
       </div>
     </div>
         {isform && (

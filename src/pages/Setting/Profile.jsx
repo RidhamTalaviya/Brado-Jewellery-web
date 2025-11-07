@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getuserprofile, updateuserprofile } from '../../Redux/slices/authSlice';
+import { updateuserprofile, getuserprofile } from '../../redux/slices/authSlice';
 
 const Profile = () => {
   const [selectedGender, setSelectedGender] = useState(null);
@@ -52,8 +52,10 @@ const Profile = () => {
     if (profile) {
       setName(profile.name || '');
       setLocation(profile.location || '');
-      setBirthdate(profile.brithdate ? new Date(profile.brithdate).toISOString().split('T')[0] : '');
-      if (profile.brithdate) {
+      // Handle both birthDate and brithdate (typo) for backward compatibility
+      const birthDateValue = profile.birthDate || profile.brithdate;
+      setBirthdate(birthDateValue ? new Date(birthDateValue).toISOString().split('T')[0] : '');
+      if (birthDateValue) {
         setBirthdateInputType('date');
       }
       setSelectedGender(profile.gender || null);
@@ -62,10 +64,29 @@ const Profile = () => {
     }
   }, [profile]);
 
+  const handleUpdateProfile = () => {
+    const updateData = {
+      name,
+      location,
+      birthDate: birthdate || null, // Send as birthDate (correct spelling)
+      gender: selectedGender,
+      email: email || newEmail,
+      isnewslettersubscribed: isNewsletterSubscribed,
+    };
+
+    console.log('Updating profile with:', updateData);
+    dispatch(updateuserprofile(updateData))
+      .unwrap()
+      .then(() => {
+        dispatch(getuserprofile());
+      })
+      .catch((err) => {
+        console.error('Failed to update profile:', err);
+      });
+  };
+
   return (
     <>
-   
-
       {/* MAIN FORM */}
       <div className="space-y-8">
         <div className="bg-white border border-gray-300 rounded-sm p-6">
@@ -116,6 +137,7 @@ const Profile = () => {
                     setIsBirthdateFocused(false);
                     if (!birthdate) setBirthdateInputType('text');
                   }}
+                  max={new Date().toISOString().split('T')[0]}
                   className="w-full px-3 pt-5 pb-2 border border-gray-300 rounded focus:outline-none text-[13px]"
                 />
               </div>
@@ -151,7 +173,7 @@ const Profile = () => {
                   value={email}
                   disabled
                   placeholder="Email Id"
-                  className="flex-1 px-3 py-2 rounded-l outline-none bg-gray-100 cursor-not-allowed"
+                  className="flex-1 px-3 py-2 rounded-l outline-none bg-gray-100 cursor-not-allowed text-[13px]"
                 />
                 <button
                   className="px-4 text-[#b4853e] font-medium text-[12px]"
@@ -260,18 +282,8 @@ const Profile = () => {
           {/* Submit */}
           <div className="mt-8 flex items-center gap-6">
             <button
-              className="bg-[#b4853e] text-white px-6 py-2 rounded text-[16px]"
-              onClick={() => {
-                dispatch(
-                  updateuserprofile({
-                    name,
-                    location,
-                    brithdate: birthdate,
-                    gender: selectedGender,
-                    isnewslettersubscribed: isNewsletterSubscribed,
-                  })
-                );
-              }}
+              className="bg-[#b4853e] text-white px-6 py-2 rounded text-[16px] hover:bg-[#9a6f35] transition-colors"
+              onClick={handleUpdateProfile}
             >
               Update Profile
             </button>

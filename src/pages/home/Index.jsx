@@ -2,7 +2,6 @@ import React from 'react'
 import HeroSlider from './HeroSlider'
 import CollectionsSlider from './Collections'
 import Category from './Category'
-import SpecialDeal from './SpecialDeal'
 import Newarrival from './Newarrival'
 import NecklaCeSet from './NacklaCeset'
 import Handwere from './Handwere'
@@ -26,7 +25,6 @@ const HomePages = () => {
     <HeroSlider/>
     <CollectionsSlider/>
     <Category/>
-    {/* <SpecialDeal/> */}
     <Carrydream/>
     <Newarrival/>
     <NecklaCeSet/>  
