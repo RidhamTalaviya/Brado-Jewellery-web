@@ -2,7 +2,6 @@ import React from 'react'
 import HeroSlider from './HeroSlider'
 import CollectionsSlider from './Collections'
 import Category from './Category'
-import Newarrival from './Newarrival'
 import NecklaCeSet from './NacklaCeset'
 import Handwere from './Handwere'
 import Earrings from './Earrings'
@@ -19,6 +18,7 @@ import Sareepin from './Sareepin'
 import RecentlyViewed from './RecentlyViewed'
 import CustomerTestimonials from './CustomerTestimonials'
 import Carrydream from './Carrydream'
+import Newarrival from './Newarrival'
 const HomePages = () => {
   return (
     <>
