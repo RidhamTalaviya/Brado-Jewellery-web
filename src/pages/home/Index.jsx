@@ -28,19 +28,19 @@ const HomePages = () => {
     <CarryDream/>
     <Newarrival/>
     <NecklaCeSet/>  
-    <Handwere/>
+    {/* <Handwere/> */}
     <Earrings/>
     <Allproductimage/>
     <Fingerring/>
     <BangleSet/>
     <Traditional/>
     <Chainpendent/>
-    <Dealoftheday/>
+    {/* <Dealoftheday/> */}
     <Dropearring/>
     <Juda/>
     <Menbracelet/>
     <Sareepin/>
-    <RecentlyViewed/>
+    {/* <RecentlyViewed/> */}
     <CustomerTestimonials/>
     </>
   )

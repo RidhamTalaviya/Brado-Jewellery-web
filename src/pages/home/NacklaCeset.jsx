@@ -9,21 +9,25 @@ import Rightarrow from "../../assets/icons/Rightarrow";
 import { useDispatch, useSelector } from "react-redux";
 import { } from "../../redux/slices/product/Necklaceset";
 import Card from "../../components/common/Card";
-import { fetchNecklacesetData } from "../../redux/slices/product/Necklaceset";
+import axiosInstance from "../../api/AxiosInterceptor";
 
 function NecklaCeSet() {
   const swiperRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [canSlidePrev, setCanSlidePrev] = useState(false);
   const [canSlideNext, setCanSlideNext] = useState(false);
-  const dispatch = useDispatch();
-
-  const necklaceData = useSelector((state) => state?.necklaceset?.necklaceset?.products);
-  console.log(necklaceData, "necklaceData");
+  
+  const [necklaceData, setNecklaceData] = useState([]);
+  const fetchNecklaceData = async () => {
+    const response = await axiosInstance("/product/get?category=necklace-set");
+    setNecklaceData(response?.data?.products);
+  };
 
   useEffect(() => {
-    dispatch(fetchNecklacesetData());
-  }, [dispatch]);
+    fetchNecklaceData();
+  }, []);
+
+
 
   // Detect desktop
   useEffect(() => {

@@ -9,7 +9,7 @@ import addressReducer from './slices/addressSlice';
 import cartReducer from './slices/cartSlice';
 import couponReducer from './slices/couponSlice';
 import orderReducer from './slices/orderSlice';
-
+import testimonialsReducer from './slices/testimonials';
 export const store = configureStore({
     reducer: {
         auth: authReducer,
@@ -22,5 +22,6 @@ export const store = configureStore({
         cart: cartReducer,
         coupon: couponReducer,
         order: orderReducer,
+        testimonials: testimonialsReducer,
     },
 });

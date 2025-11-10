@@ -170,12 +170,16 @@ const Card = ({ product }) => {
             <span className="text-sm md:text-base font-semibold">
               ₹{product.discountPrice}
             </span>
-            <span className="text-xs line-through text-gray-400">
-              ₹{product.price}
-            </span>
-            <span className="text-xs md:text-sm text-orange-600">
-              ({product.discount}% OFF)
-            </span>
+      {product.discount > 0 && (
+        <span className="text-xs line-through text-gray-400">
+          ₹{product.price}
+        </span>
+      )}
+      {product.discount > 0 && (
+        <span className="text-xs md:text-sm text-orange-600">
+          ({product.discount}% OFF)
+        </span>
+      )}
           </div>
 
           {product?.offers?.[0]?.active && (

@@ -3,41 +3,41 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/AxiosInterceptor';
 
 // Async thunk to fetch carousel data
-export const fetchCarouselData = createAsyncThunk(
-  'carousel/fetchCarouselData',
+export const fetchTestimonialsData = createAsyncThunk(
+  'testimonials/fetchTestimonialsData',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get('/carousel/get');
+      const response = await axiosInstance.get('/testimonials/customertestimonials');
       return response.data; 
 
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch carousel data');
+      return rejectWithValue(error.response?.data || 'Failed to fetch testimonials data');
     }
   }
 );
 
-const carouselSlice = createSlice({
-  name: 'carousel',
+const testimonialsSlice = createSlice({
+  name: 'testimonials',
   initialState: {
-    slides: [],
+    testimonials: [],
     status: 'idle', 
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCarouselData.pending, (state) => {
+      .addCase(fetchTestimonialsData.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchCarouselData.fulfilled, (state, action) => {
+      .addCase(fetchTestimonialsData.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.slides = action.payload;
+        state.testimonials = action.payload;
       })
-      .addCase(fetchCarouselData.rejected, (state, action) => {
+      .addCase(fetchTestimonialsData.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });
   },
 });
 
-export default carouselSlice.reducer;
+export default testimonialsSlice.reducer;

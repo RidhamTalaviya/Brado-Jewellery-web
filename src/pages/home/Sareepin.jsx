@@ -11,6 +11,9 @@ import Rightarrow from "../../assets/icons/Rightarrow";
 import ArrowRightIcon from "../../assets/icons/ArrowRightIcon";
 
 import { sareepin } from "../../constant/constant";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/AxiosInterceptor";
+import Card from "../../components/common/Card";
 
 function Sareepin() {
   const swiperRef = useRef(null);
@@ -18,6 +21,17 @@ function Sareepin() {
   const [canSlidePrev, setCanSlidePrev] = useState(false);
   const [canSlideNext, setCanSlideNext] = useState(false);
   const [showArrows, setShowArrows] = useState(false);
+    const navigate = useNavigate();
+   const [sareepinData, setSareepinData] = useState([]);
+  const fetchSareepinData = async () => {
+    const response = await axiosInstance("/product/get?category=saree-pin");
+    console.log(response , "riya bava");
+    setSareepinData(response?.data?.products);
+  };
+
+  useEffect(() => {
+    fetchSareepinData();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 640);
@@ -42,7 +56,7 @@ function Sareepin() {
       {/* Heading */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl md:text-[21px] font-medium section-title">Saree Pin</h2>
-        <button className="relative flex items-center gap-2 text-[#b87a2c] font-medium text-sm cursor-pointer">
+        <button className="relative flex items-center gap-2 text-[#b87a2c] font-medium text-sm cursor-pointer" onClick={() => navigate("/category/saree-pin")}>
           <span className="absolute -left-3 w-10 h-10 bg-[#e6d4bd] rounded-full opacity-40"></span>
           <span className="relative">View All</span>
           <ArrowRightIcon />
@@ -72,42 +86,9 @@ function Sareepin() {
             1024: { slidesPerView: 5 },
           }}
         >
-          {sareepin.map((product, index) => (
+          {sareepinData.map((product, index) => (
             <SwiperSlide key={index}>
-              <div className="bg-white rounded-lg overflow-hidden relative group hover:transition duration-300">
-                <div className="relative">
-                  <img
-                    src={product.img}
-                    alt={product.title}
-                    className="w-full h-56 md:h-64 object-cover transition-transform duration-300"
-                  />
-
-                  {/* Heart Icon */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white rounded-full p-2 shadow hover:scale-110 transition">
-                      <Heart className="w-5 h-5 text-gray-600" />
-                    </button>
-                  </div>
-
-                  {/* Add to Cart */}
-                  <div className="absolute left-0 right-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <button className="w-full bg-white text-gray-800 px-4 py-2 text-sm rounded-none">
-                      <div className="p-2 border border-gray-300 rounded-[1px] flex items-center justify-center gap-2">
-                        <Cart className="w-4 h-4 text-gray-600" />
-                        <span>Add To Cart</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Product Details */}
-                <div className="p-3">
-                  <h3 className="text-sm md:text-base font-medium line-clamp-2 truncate">{product.title}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm md:text-base font-semibold">₹{product.price}</span>
-                  </div>
-                </div>
-              </div>
+            <Card product={product}/>
             </SwiperSlide>
           ))}
 

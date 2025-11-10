@@ -10,6 +10,9 @@ import Heart from "../../assets/icons/HeartIcon";
 import Leftarrow from "../../assets/icons/Leftarrow";
 import Rightarrow from "../../assets/icons/Rightarrow";
 import { judas } from "../../constant/constant";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/AxiosInterceptor";
+import Card from "../../components/common/Card";
 
 function Juda() {
   const swiperRef = useRef(null);
@@ -17,6 +20,17 @@ function Juda() {
   const [canSlidePrev, setCanSlidePrev] = useState(false);
   const [canSlideNext, setCanSlideNext] = useState(false);
   const [showArrows, setShowArrows] = useState(false);
+    const navigate = useNavigate();
+   const [judasData, setJudasData] = useState([]);
+  const fetchJudasData = async () => {
+    const response = await axiosInstance("/product/get?category=juda");
+    console.log(response , "riya bava");
+    setJudasData(response?.data?.products);
+  };
+
+  useEffect(() => {
+    fetchJudasData();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 640);
@@ -41,7 +55,7 @@ function Juda() {
       {/* Heading */}
       <div className="flex justify-between mb-4">
         <h2 className="text-2xl md:text-[21px] font-medium section-title">Juda</h2>
-        <button className="relative flex items-center gap-2 text-[#b87a2c] font-medium text-sm cursor-pointer">
+        <button className="relative flex items-center gap-2 text-[#b87a2c] font-medium text-sm cursor-pointer" onClick={() => navigate("/category/juda")}>
           <span className="absolute -left-3 w-10 h-10 bg-[#e6d4bd] rounded-full opacity-40"></span>
           <span className="relative">View All</span>
           <ArrowRightIcon />
@@ -71,41 +85,9 @@ function Juda() {
             1024: { slidesPerView: 5 },
           }}
         >
-          {judas.map((product, index) => (
+          {judasData.map((product, index) => (
             <SwiperSlide key={index}>
-              <div className="bg-white rounded-lg overflow-hidden relative group hover:transition duration-300">
-                <div className="relative">
-                  <img
-                    src={product.img}
-                    alt={product.title}
-                    className="w-full h-64 md:h-80 object-cover transition-transform duration-300"
-                  />
-
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white rounded-full p-2 shadow hover:scale-110 transition">
-                      <Heart className="w-5 h-5 text-gray-600" />
-                    </button>
-                  </div>
-
-                  <div className="absolute left-0 right-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <button className="w-full bg-white text-gray-800 px-4 py-2 text-sm rounded-none">
-                      <div className="p-2 border border-gray-300 rounded-[1px] flex items-center justify-center gap-2">
-                        <Cart className="w-4 h-4 text-gray-600" />
-                        <span>Add To Cart</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-3">
-                  <h3 className="text-sm md:text-base font-medium line-clamp-2 truncate">
-                    {product.title}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm md:text-base font-semibold">₹{product.price}</span>
-                  </div>
-                </div>
-              </div>
+              <Card product={product} />
             </SwiperSlide>
           ))}
 

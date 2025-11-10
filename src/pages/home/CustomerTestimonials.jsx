@@ -1,8 +1,8 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import StarRating from "../../assets/icons/startRating";
 import logo from "../../assets/images/testimonial.jpg";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTestimonialsData } from "../../redux/slices/testimonials";
 
 const CustomerTestimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,40 +10,40 @@ const CustomerTestimonials = () => {
   const [touchEnd, setTouchEnd] = useState(0);
   const [visibleSlides, setVisibleSlides] = useState(1);
   const sliderRef = useRef(null);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    dispatch(fetchTestimonialsData());
+  }, [dispatch]);
 
-  const testimonials = [
-    {
-      id: 1,
-      text: "I love the look of real jewellery, but I can't afford it. Imitation jewellery is a great way to get the look of real jewellery without breaking the bank. I've been wearing imitation jewellery for years, and I've never had anyone tell me that it's not real.",
-      name: "Priya Sharma",
-      rating: 5,
-    },
-    {
-      id: 2,
-      text: "I'm always on the lookout for new and interesting jewellery. I recently came across Brado Jewellery website, and I was really impressed with their selection of imitation jewellery. They have a wide variety of styles to choose from, and the prices are very reasonable.",
-      name: "Nidhi Patel",
-      rating: 5,
-    },
-    {
-      id: 3,
-      text: "I'm always on the lookout for unique and affordable jewellery, and I was so happy to find your shop. I love the selection of imitation jewellery you have, and I've already purchased several pieces. The quality is excellent, and the prices are very reasonable. I would definitely recommend your shop to anyone looking for beautiful and affordable jewellery.",
-      name: "Keyur Mishra",
-      rating: 5,
-    },
-  ];
+  const testimonialsData = useSelector((state) => state.testimonials.testimonials);
+  
+  // Extract testimonials from API response
+  // Filter only featured testimonials and map to required format
+  const testimonials = testimonialsData
+    ? testimonialsData
+        .filter(item => item.featured)
+        .map(item => ({
+          id: item._id,
+          text: item.testimonialText,
+          name: item.name,
+          rating: item.rating,
+        }))
+    : [];
 
   // Get visible slides based on screen size
   const getVisibleSlides = () => {
     if (typeof window === 'undefined') return 1;
-    if (window.innerWidth >= 1024) return 3; // lg and up - show 3 (no slider)
-    if (window.innerWidth >= 768) return 2;  // md - show 2 (slider)
-    return 1; // sm and below - show 1 (slider)
+    if (window.innerWidth >= 1024) return 3;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
   };
 
   useEffect(() => {
     const updateVisibleSlides = () => {
-      setVisibleSlides(getVisibleSlides());
-      setCurrentSlide(0); // Reset to first slide when screen size changes
+      const newVisibleSlides = getVisibleSlides();
+      setVisibleSlides(newVisibleSlides);
+      setCurrentSlide(0);
     };
 
     updateVisibleSlides();
@@ -51,19 +51,19 @@ const CustomerTestimonials = () => {
     return () => window.removeEventListener('resize', updateVisibleSlides);
   }, []);
 
-  // Touch handlers for mobile swipe (only when slider is needed)
+  // Touch handlers for mobile swipe
   const handleTouchStart = (e) => {
-    if (visibleSlides >= 3) return; // No touch for desktop
+    if (testimonials.length <= visibleSlides) return;
     setTouchStart(e.targetTouches[0].clientX);
   };
 
   const handleTouchMove = (e) => {
-    if (visibleSlides >= 3) return; // No touch for desktop
+    if (testimonials.length <= visibleSlides) return;
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
   const handleTouchEnd = () => {
-    if (visibleSlides >= 3 || !touchStart || !touchEnd) return;
+    if (testimonials.length <= visibleSlides || !touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
@@ -75,21 +75,43 @@ const CustomerTestimonials = () => {
     if (isRightSwipe) {
       prevSlide();
     }
+
+    setTouchStart(0);
+    setTouchEnd(0);
   };
 
   const nextSlide = () => {
-    if (visibleSlides >= 3) return; // No sliding for desktop
+    if (testimonials.length <= visibleSlides) return;
     const maxSlide = testimonials.length - visibleSlides;
-    setCurrentSlide((prev) => (prev >= maxSlide ? prev : prev + 1));
+    setCurrentSlide((prev) => (prev >= maxSlide ? maxSlide : prev + 1));
   };
 
   const prevSlide = () => {
-    if (visibleSlides >= 3) return; // No sliding for desktop
-    setCurrentSlide((prev) => (prev <= 0 ? prev : prev - 1));
+    if (testimonials.length <= visibleSlides) return;
+    setCurrentSlide((prev) => (prev <= 0 ? 0 : prev - 1));
   };
 
-  // Check if slider is needed
-  const needsSlider = visibleSlides < 3;
+  // Check if slider is needed (more testimonials than visible slides)
+  const needsSlider = testimonials.length > visibleSlides;
+  const maxSlide = testimonials.length - visibleSlides;
+
+  // Show loading state if no testimonials yet
+  if (!testimonials || testimonials.length === 0) {
+    return (
+      <section
+        className="relative py-10 bg-cover bg-center mb-10 z-2"
+        style={{ backgroundImage: `url(${logo})` }}
+      >
+        <div className="max-w-[90%] mx-auto relative z-10">
+          <h2 className="text-2xl md:text-3xl font-medium text-center mb-8 text-gray-800">
+            Customer Testimonials
+            <div className="w-16 h-0.5 bg-[#b4853e] mx-auto mt-2"></div>
+          </h2>
+          <div className="text-center text-gray-600">Loading testimonials...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -125,7 +147,7 @@ const CustomerTestimonials = () => {
                   visibleSlides === 2 ? 'w-1/2' : 'w-1/3'
                 }`}
               >
-                <div className="bg-white backdrop-blur-sm rounded-lg p-6 md:p-7 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full mx-auto">
+                <div className="bg-white backdrop-blur-sm rounded-lg p-6 md:p-7 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full w-full">
                   {/* Testimonial Text */}
                   <div className="flex-grow mb-6">
                     <p 
@@ -166,7 +188,8 @@ const CustomerTestimonials = () => {
               {currentSlide > 0 && (
                 <button
                   onClick={prevSlide}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-3 transition-all duration-300 flex items-center justify-center group"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-3 transition-all duration-300 flex items-center justify-center group z-10"
+                  aria-label="Previous testimonial"
                 >
                   <svg 
                     className="w-5 h-5 text-gray-600 group-hover:text-[#b4853e] transition-colors" 
@@ -179,10 +202,12 @@ const CustomerTestimonials = () => {
                 </button>
               )}
 
-              {currentSlide < testimonials.length - visibleSlides && (
+              {/* Right Arrow - Only show if not on last slide */}
+              {currentSlide < maxSlide && (
                 <button
                   onClick={nextSlide}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-3 transition-all duration-300 flex items-center justify-center group"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-3 transition-all duration-300 flex items-center justify-center group z-10"
+                  aria-label="Next testimonial"
                 >
                   <svg 
                     className="w-5 h-5 text-gray-600 group-hover:text-[#b4853e] transition-colors" 
@@ -198,8 +223,6 @@ const CustomerTestimonials = () => {
           )}
           
         </div>
-
-     
       </div>
     </section>
   );
