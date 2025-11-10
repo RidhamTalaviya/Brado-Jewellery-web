@@ -18,14 +18,14 @@ import Sareepin from './Sareepin'
 import RecentlyViewed from './RecentlyViewed'
 import CustomerTestimonials from './CustomerTestimonials'
 import Newarrival from './Newarrival'
-import Carrydream from './Carrydream'
+import CarryDream from './CarryDream'
 const HomePages = () => {
   return (
     <>
     <Heroslider/>
     <CollectionsSlider/>
     <Category/>
-    <Carrydream/>
+    <CarryDream/>
     <Newarrival/>
     <NecklaCeSet/>  
     <Handwere/>

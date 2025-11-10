@@ -3,7 +3,7 @@ import img1 from '../../assets/images/carrydream/img1.jpeg'
 import img2 from '../../assets/images/carrydream/img2.jpeg'
 
 
-function Carrydream() {
+function CarryDream() {
   return (
     <>
         <img src={img1} alt="" />
@@ -12,4 +12,4 @@ function Carrydream() {
   )
 }
 
-export default  Carrydream
+export default  CarryDream
