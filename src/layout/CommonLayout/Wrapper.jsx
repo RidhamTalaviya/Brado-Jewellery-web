@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Footer from "./footer";
 import Header from "./header";
@@ -9,10 +9,13 @@ import { fetchWishlist } from "../../redux/slices/wishlistSlice";
 import { fetchCollectionsData } from "../../redux/slices/collections";
 import { useLoading } from "../../Context/LoadingContext";
 import Loader from "../../components/Loader";
+import { LoggingContext } from "../../Context/LoggingContext";
+import SignIn from "../../pages/auth/signIn/SignIn";
 
 const Wrapper = () => {
   const dispatch = useDispatch();
-  
+  const [isform, setIsForm] = useState(false);
+
   useEffect(() => {
     dispatch(fetchCollectionsData());
   }, [dispatch]);
@@ -33,6 +36,11 @@ const Wrapper = () => {
    const location = useLocation();
   const { loading, setLoading } = useLoading();
 
+  
+
+  const closeSignInModal = () => {
+    setIsForm(false);
+  };
   useEffect(() => {
     // Show loader when route changes
     setLoading(true);
@@ -46,15 +54,23 @@ const Wrapper = () => {
   }, [location.pathname, setLoading]);
 
   return (
-    <div>
+    <>
+    <LoggingContext.Provider value={{isform, setIsForm , closeSignInModal}}>
       {loading && <Loader />}
-      <Header />
+      <Header  />
       <SubHeader />
       <div>
-        <Outlet />
+        <Outlet  />
       </div>
       <Footer />
-    </div>
+
+      {isform && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <SignIn open={true} onClose={closeSignInModal} data={closeSignInModal} />
+          </div>
+      )}
+    </LoggingContext.Provider>
+    </>
   );
 };
 

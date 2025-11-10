@@ -93,7 +93,7 @@ const CustomerTestimonials = () => {
 
   return (
     <section
-      className="relative py-10 bg-cover bg-center mb-10"
+      className="relative py-10 bg-cover bg-center mb-10 z-2"
       style={{ backgroundImage: `url(${logo})` }}
     >
       <div className="max-w-[90%] mx-auto relative z-10">

@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import { Flip, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { router } from "./routing/routes";
+import { useContext } from "react";
 
 const App = () => {
   return (

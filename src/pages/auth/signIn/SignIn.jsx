@@ -101,10 +101,10 @@ const SignIn = ({ open, onClose , data }) => {
  
 
   const handleResendOTP = () => { 
-    setResendTimer(120);
+    // setResendTimer(120);
     setErrors({});
     
-    dispatch(resendOTP({ id : state?.id }));
+    dispatch(resendOTP({ id : state?.id , setResendTimer }));
   };
 
   const handleBackToEmail = () => {

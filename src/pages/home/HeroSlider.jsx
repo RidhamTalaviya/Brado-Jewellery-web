@@ -32,7 +32,7 @@ const CustomArrow = ({ direction, onClick, className }) => (
   </button>
 );
 
-export default function HeroSlider() {
+export default function Heroslider() {
   const videoRef = useRef(null);
   const swiperRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);

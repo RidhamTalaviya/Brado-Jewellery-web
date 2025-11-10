@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import SearchIcon from "../../../assets/icons/SearchIcon";
 import HeartIcon from "../../../assets/icons/HeartIcon";
 import CartIcon from "../../../assets/icons/Cart";
@@ -12,6 +12,7 @@ import { Heart, LogOut, MapPin, Package, User, Wallet } from "lucide-react";
 import { clearCart, fetchCartData } from "../../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { clearWishlist } from "../../../redux/slices/wishlistSlice";
+import { LoggingContext } from "../../../Context/LoggingContext";
 
 
 const Header = () => {
@@ -19,12 +20,13 @@ const Header = () => {
   const [results, setResults] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isform, setIsForm] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const dispatch = useDispatch();
+  const {isform, setIsForm} = useContext(LoggingContext);
   const state = useSelector((state) => state?.collections?.collections);
   const cart = useSelector((state) => state?.cart?.cart[0]);
   const navigate = useNavigate();
+    const token = Cookies.get("token");
 
   console.log(state, "state collection");
 
@@ -53,7 +55,7 @@ const Header = () => {
   };
 
   const handleWishlist = () => {
-    if(Cookies.get("token")) {
+    if(token) {
       navigate("/wishlist");
     } else {
       setIsForm(true);
@@ -114,7 +116,6 @@ const Header = () => {
   }, [showUserMenu]);
   
   const openSignInModal = () => {
-    const token = Cookies.get("token");
     if (!token) {
       setIsForm(true); 
     } else {
@@ -130,9 +131,7 @@ const Header = () => {
 
   };
 
-  const closeSignInModal = () => {
-    setIsForm(false);
-  };
+
 
   return (
     <>
@@ -445,8 +444,7 @@ const Header = () => {
             <div className="flex-1 overflow-y-auto" style={{height: 'calc(100vh - 140px)'}}>
               {/* ACCOUNT Section */}
               <div className="py-4">
-                <h3 className="px-6 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">ACCOUNT</h3>
-                <nav>
+                { token && (<nav>
                   <div
                     onClick={() => {
                       navigate('/profile');
@@ -497,7 +495,7 @@ const Header = () => {
                     <Wallet size={20} className="text-gray-600" />
                     <span>Wallet</span>
                   </div>
-                </nav>
+                </nav> )}
               </div>
 
               {/* CATEGORIES Section */}
@@ -539,13 +537,7 @@ const Header = () => {
       </header>
 
       {/* SignIn Modal */}
-      {isform && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={closeSignInModal}>
-          <div onClick={(e) => e.stopPropagation()}>
-            <SignIn open={true} onClose={closeSignInModal} data={closeSignInModal} />
-          </div>
-        </div>
-      )}
+      
     </>
   );
 };

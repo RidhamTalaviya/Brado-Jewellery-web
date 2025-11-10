@@ -12,9 +12,10 @@ export const useLoading = () => {
 
 export const LoadingProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
+  const [isform, setIsForm] = useState(false);
 
   return (
-    <LoadingContext.Provider value={{ loading, setLoading }}>
+    <LoadingContext.Provider value={{ loading, setLoading , isform, setIsForm }}>
       {children}
     </LoadingContext.Provider>
   );

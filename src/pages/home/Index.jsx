@@ -1,13 +1,13 @@
 import React from 'react'
-import HeroSlider from './HeroSlider'
+import Heroslider from './Heroslider'
 import CollectionsSlider from './Collections'
 import Category from './Category'
 import NecklaCeSet from './NacklaCeset'
 import Handwere from './Handwere'
 import Earrings from './Earrings'
 import Allproductimage from './Allproductimage'
-import Fingerring from './FingerRing'
-import BangleSet from './Bangle'
+import Fingerring from './Fingerring'
+import BangleSet from './BangleSet'
 import Traditional from './Traditional'
 import Chainpendent from './Chainpendent'
 import Dealoftheday from './Dealoftheday'
@@ -22,7 +22,7 @@ import Carrydream from './Carrydream'
 const HomePages = () => {
   return (
     <>
-    <HeroSlider/>
+    <Heroslider/>
     <CollectionsSlider/>
     <Category/>
     <Carrydream/>

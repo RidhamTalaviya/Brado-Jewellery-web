@@ -81,6 +81,10 @@ export const resendOTP = createAsyncThunk(
     try {
 
     const response = await axiosInstance.post('/auth/resend-otp', {id:payload.id , otp:payload.otp});
+    if(response.success)
+    {
+      payload?.setResendTimer(120);
+    }
       toast.success(response?.message || 'Resend OTP', {
         position: 'top-right',
         autoClose: 5000,
