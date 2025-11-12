@@ -118,7 +118,7 @@ const SignIn = ({ open, onClose , data }) => {
 
   // Render Email Input View
   const renderEmailView = () => (
-    <div className="bg-white !w-[40%] rounded-sm shadow-lg relative p-6 animate-fadeIn">
+    <div className="bg-white lg:!w-[40%] !w-[90%] rounded-sm shadow-lg relative p-6 animate-fadeIn">
       {isModal && (
         <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onClick={onClose}>
           <CloseIcon className="w-5 h-5" />
