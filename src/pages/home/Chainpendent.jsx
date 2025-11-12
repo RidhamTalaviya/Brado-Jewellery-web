@@ -3,14 +3,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import BadgePercent from "../../assets/icons/SettingsCogIcon";
 import ArrowRightIcon from "../../assets/icons/ArrowRightIcon";
-import Cart from "../../assets/icons/Cart";
 import Leftarrow from "../../assets/icons/Leftarrow";
 import Rightarrow from "../../assets/icons/Rightarrow";
 
-import SVGHaert from "../../assets/icons/HeartIcon";
-import { pendent } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/AxiosInterceptor";
 import Card from "../../components/common/Card";

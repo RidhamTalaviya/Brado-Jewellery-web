@@ -22,70 +22,70 @@ const useDebounce = (value, delay) => {
 };
 
 /* ──────────────────────── PAGINATION ──────────────────────── */
-  const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-    const getPageNumbers = () => {
-      const pages = [];
-      const showEllipsisStart = currentPage > 3;
-      const showEllipsisEnd = currentPage < totalPages - 2;
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const getPageNumbers = () => {
+    const pages = [];
+    const showEllipsisStart = currentPage > 3;
+    const showEllipsisEnd = currentPage < totalPages - 2;
 
-      if (totalPages <= 7) {
-        for (let i = 1; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        if (showEllipsisStart) pages.push('...');
-        const start = Math.max(2, currentPage - 1);
-        const end = Math.min(totalPages - 1, currentPage + 1);
-        for (let i = start; i <= end; i++) pages.push(i);
-        if (showEllipsisEnd) pages.push('...');
-        pages.push(totalPages);
-      }
-      return pages;
-    };
-
-    const pageNumbers = getPageNumbers();
-
-    return (
-      <div className="flex items-center justify-center gap-2 py-8">
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="flex items-center justify-center w-12 h-12 rounded-lg border transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-gray-400"
-          style={{ borderColor: '#D1D5DB', backgroundColor: '#FFFFFF' }}
-        >
-          <ChevronLeft className="w-5 h-5" style={{ color: '#6B7280' }} />
-        </button>
-        {pageNumbers.map((page, index) => (
-          <React.Fragment key={index}>
-            {page === '...' ? (
-              <div className="flex items-center justify-center w-12 h-12 text-gray-500">...</div>
-            ) : (
-              <button
-                onClick={() => onPageChange(page)}
-                className={`flex items-center justify-center w-12 h-12 rounded-lg border transition-all font-medium ${
-                  currentPage === page ? 'text-white shadow-md' : 'hover:border-gray-400'
-                }`}
-                style={{
-                  borderColor: currentPage === page ? '#b4853e' : '#D1D5DB',
-                  backgroundColor: currentPage === page ? '#b4853e' : '#FFFFFF',
-                  color: currentPage === page ? '#FFFFFF' : '#374151',
-                }}
-              >
-                {page}
-              </button>
-            )}
-          </React.Fragment>
-        ))}
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="flex items-center justify-center w-12 h-12 rounded-lg border transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-gray-400"
-          style={{ borderColor: '#D1D5DB', backgroundColor: '#FFFFFF' }}
-        >
-          <ChevronRight className="w-5 h-5" style={{ color: '#6B7280' }} />
-        </button>
-      </div>
-    );
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (showEllipsisStart) pages.push('...');
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (showEllipsisEnd) pages.push('...');
+      pages.push(totalPages);
+    }
+    return pages;
   };
+
+  const pageNumbers = getPageNumbers();
+
+  return (
+    <div className="flex items-center justify-center gap-2 py-8">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="flex items-center justify-center w-12 h-12 rounded-lg border transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-gray-400"
+        style={{ borderColor: '#D1D5DB', backgroundColor: '#FFFFFF' }}
+      >
+        <ChevronLeft className="w-5 h-5" style={{ color: '#6B7280' }} />
+      </button>
+      {pageNumbers.map((page, index) => (
+        <React.Fragment key={index}>
+          {page === '...' ? (
+            <div className="flex items-center justify-center w-12 h-12 text-gray-500">...</div>
+          ) : (
+            <button
+              onClick={() => onPageChange(page)}
+              className={`flex items-center justify-center w-12 h-12 rounded-lg border transition-all font-medium ${
+                currentPage === page ? 'text-white shadow-md' : 'hover:border-gray-400'
+              }`}
+              style={{
+                borderColor: currentPage === page ? '#b4853e' : '#D1D5DB',
+                backgroundColor: currentPage === page ? '#b4853e' : '#FFFFFF',
+                color: currentPage === page ? '#FFFFFF' : '#374151',
+              }}
+            >
+              {page}
+            </button>
+          )}
+        </React.Fragment>
+      ))}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="flex items-center justify-center w-12 h-12 rounded-lg border transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-gray-400"
+        style={{ borderColor: '#D1D5DB', backgroundColor: '#FFFFFF' }}
+      >
+        <ChevronRight className="w-5 h-5" style={{ color: '#6B7280' }} />
+      </button>
+    </div>
+  );
+};
 
 /* ──────────────────────── MAIN COMPONENT ──────────────────────── */
 const Category = () => {
@@ -106,6 +106,7 @@ const Category = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(null);
   const [isPriceInitialized, setIsPriceInitialized] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // ⭐ NEW: Track initial load
 
   // ───── REDUX ─────
   const productData = useSelector((state) => state?.product?.allProductData);
@@ -121,37 +122,66 @@ const Category = () => {
   const sliderRef = useRef(null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
-  const hasFetchedRef = useRef('');               // <-- NEW guard
+  const hasFetchedRef = useRef('');
   const currentCategoryRef = useRef(null);
+  const initialPriceSetRef = useRef(false); // ⭐ NEW: Track if initial price was set
 
   const sortOptions = ['Latest', 'Price Low To High', 'Price High To Low', 'Discount'];
 
   /* ───── CATEGORY CHANGE RESET ───── */
   useEffect(() => {
     if (currentCategoryRef.current !== categoryName) {
+      console.log('🔄 Category changed to:', categoryName);
       currentCategoryRef.current = categoryName;
       hasFetchedRef.current = '';
       setSelectedFilters({});
       setPage(1);
       setSortBy('Latest');
       setIsPriceInitialized(false);
+      setIsInitialLoad(true); // ⭐ Reset initial load flag
+      initialPriceSetRef.current = false; // ⭐ Reset price set flag
       setPriceRange({ min: 0, max: 0 });
       setSelectedPriceRange([0, 0]);
       if (categoryName) dispatch(fetchCollectionsDataById(categoryName));
     }
   }, [categoryName, dispatch]);
 
-  /* ───── PRICE INITIALISATION ───── */
+  /* ───── INITIAL API CALL (WITHOUT PRICE FILTER) ───── */
   useEffect(() => {
-    if (apiPriceRange && apiPriceRange.max > 0 && !isPriceInitialized) {
+    if (!categoryName || !isInitialLoad) return;
+
+    const initialParams = {
+      category: categoryName,
+      page: 1,
+      limit,
+      sortBy: 'Latest',
+    };
+
+    const key = `initial-${categoryName}`;
+    if (hasFetchedRef.current === key) return;
+    hasFetchedRef.current = key;
+
+    console.log('🔥 INITIAL API CALL (No filters):', initialParams);
+    dispatch(allProductData(initialParams));
+    setIsInitialLoad(false); // ⭐ Mark initial load as complete
+  }, [categoryName, isInitialLoad, dispatch, limit]);
+
+  /* ───── PRICE RANGE INITIALIZATION FROM API RESPONSE ───── */
+  useEffect(() => {
+    if (apiPriceRange && apiPriceRange.max > 0 && !initialPriceSetRef.current) {
+      console.log('💰 Setting price range from API:', apiPriceRange);
       setPriceRange(apiPriceRange);
       setSelectedPriceRange([apiPriceRange.min, apiPriceRange.max]);
       setIsPriceInitialized(true);
+      initialPriceSetRef.current = true; // ⭐ Mark that we've set initial price
     }
-  }, [apiPriceRange, isPriceInitialized]);
+  }, [apiPriceRange]);
 
-  /* ───── MEMOISED FILTER PARAMS ───── */
+  /* ───── FILTER PARAMS (ONLY AFTER INITIALIZATION) ───── */
   const filterParams = useMemo(() => {
+    // ⭐ Don't build params during initial load
+    if (isInitialLoad) return null;
+
     const params = {
       category: categoryName,
       page,
@@ -159,6 +189,7 @@ const Category = () => {
       sortBy,
     };
 
+    // ⭐ Only add price filter if initialized AND user changed it
     if (isPriceInitialized && priceRange.max > 0) {
       const [selMin, selMax] = debouncedPriceRange;
       if (selMin !== priceRange.min || selMax !== priceRange.max) {
@@ -167,6 +198,7 @@ const Category = () => {
       }
     }
 
+    // Add other filters
     Object.entries(selectedFilters).forEach(([key, vals]) => {
       if (Array.isArray(vals) && vals.length) {
         params[key] = vals.join(',');
@@ -175,6 +207,7 @@ const Category = () => {
 
     return params;
   }, [
+    isInitialLoad,
     categoryName,
     page,
     limit,
@@ -183,23 +216,24 @@ const Category = () => {
     isPriceInitialized,
     priceRange.min,
     priceRange.max,
-    JSON.stringify(
-      Object.entries(selectedFilters)
-        .filter(([, v]) => Array.isArray(v) && v.length)
-        .map(([k, v]) => [k, [...v].sort()])
-    ),
+    selectedFilters,
   ]);
 
-  /* ───── SINGLE API CALL ───── */
+  /* ───── API CALL FOR FILTERS (AFTER INITIAL LOAD) ───── */
   useEffect(() => {
-    if (!categoryName) return;
+    // ⭐ Skip if initial load or no params
+    if (!categoryName || isInitialLoad || !filterParams || !isPriceInitialized) return;
 
     const key = `${categoryName}-${JSON.stringify(filterParams)}`;
-    if (hasFetchedRef.current === key) return;   // already called with this exact payload
+    if (hasFetchedRef.current === key) {
+      console.log('⏭️ Skipping duplicate API call');
+      return;
+    }
     hasFetchedRef.current = key;
 
+    console.log('🔥 FILTER API CALL:', filterParams);
     dispatch(allProductData(filterParams));
-  }, [categoryName, filterParams, dispatch]);
+  }, [categoryName, isInitialLoad, filterParams, isPriceInitialized, dispatch]);
 
   const totalPages = Math.ceil(total / limit);
 

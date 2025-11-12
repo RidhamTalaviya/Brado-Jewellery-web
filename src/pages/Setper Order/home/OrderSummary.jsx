@@ -65,10 +65,11 @@ const OrderSummary = ({ nextStep, setShowCouponModal, currentStep, prevStep }) =
             <span className="text-[#696661] text-[14px]">Total MRP</span>
             <span className="text-[14px]">₹{cart?.total_mrp_amount || 0}</span>
           </div>
-          <div className="flex justify-between text-green-600">
+        { cart?.total_sale_discount > 1 && <div className="flex justify-between text-green-600">
             <span className="text-[#696661] text-[14px]">Discount</span>
             <span className="text-[14px]">-₹{cart?.total_sale_discount}</span>
           </div>
+}
 
           {cart?.total_offer_discount > 1 && (
             <div className="flex justify-between text-green-600">

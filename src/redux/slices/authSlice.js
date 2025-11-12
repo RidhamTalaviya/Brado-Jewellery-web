@@ -47,6 +47,8 @@ export const otpVerify = createAsyncThunk(
     try {
       console.log(payload , " ")
       const response = await axiosInstance.post('/auth/verify-otp', {id:payload.id, otp:payload.otp} , {withCredentials:true});
+      localStorage.setItem("token", response?.token);
+
       toast.success(response?.message || 'Verified', {
         position: 'top-right',
         autoClose: 5000,

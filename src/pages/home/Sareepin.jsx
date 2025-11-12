@@ -4,13 +4,10 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 
-import Cart from "../../assets/icons/Cart";
-import Heart from "../../assets/icons/HeartIcon";
 import Leftarrow from "../../assets/icons/Leftarrow";
 import Rightarrow from "../../assets/icons/Rightarrow";
 import ArrowRightIcon from "../../assets/icons/ArrowRightIcon";
 
-import { sareepin } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/AxiosInterceptor";
 import Card from "../../components/common/Card";

@@ -21,7 +21,7 @@ const Wrapper = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token) {
       dispatch(fetchWishlist()).then(() => {
         console.log("Wishlist fetched successfully");

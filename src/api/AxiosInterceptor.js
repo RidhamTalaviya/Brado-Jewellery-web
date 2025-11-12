@@ -2,21 +2,18 @@ import axios from 'axios';
 // import Cookies from 'js-cookie';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // Replace with your API base URL
-  timeout: 90000,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // const accessToken = Cookies.get('accessToken');
-    const accessToken = true;
+    const accessToken =   localStorage.getItem("token");
     
     if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      config.headers.Authorization = accessToken;
     }
 
     return config;

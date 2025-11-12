@@ -5,11 +5,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import ArrowRightIcon from "../../assets/icons/ArrowRightIcon";
-import Cart from "../../assets/icons/Cart";
-import Heart from "../../assets/icons/HeartIcon";
 import Leftarrow from "../../assets/icons/Leftarrow";
 import Rightarrow from "../../assets/icons/Rightarrow";
-import { judas } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/AxiosInterceptor";
 import Card from "../../components/common/Card";

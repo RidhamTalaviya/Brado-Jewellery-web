@@ -27,7 +27,7 @@ const Card = ({ product }) => {
   console.log(product);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = Cookies.get("token");
+  const token = localStorage.getItem("token");
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -52,7 +52,8 @@ const Card = ({ product }) => {
 
   // Toggle wishlist
   const handleWishlistToggle = async (e) => {
- 
+ e.preventDefault();
+ e.stopPropagation();
 
     if (token) {
       try {

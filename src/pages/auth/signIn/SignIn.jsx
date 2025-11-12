@@ -23,6 +23,8 @@ const SignIn = ({ open, onClose , data }) => {
   const inputRefs = useRef([]);
   const dispatch = useDispatch();
   const state = useSelector((state) => state?.auth);
+
+
   const isModal = open !== undefined;
 
   if (isModal && !open) return null;

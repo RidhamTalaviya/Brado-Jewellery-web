@@ -14,7 +14,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearWishlist } from "../../../redux/slices/wishlistSlice";
 import { LoggingContext } from "../../../Context/LoggingContext";
 
-
 const Header = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -22,11 +21,11 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const dispatch = useDispatch();
-  const {isform, setIsForm} = useContext(LoggingContext);
+  const { isform, setIsForm } = useContext(LoggingContext);
   const state = useSelector((state) => state?.collections?.collections);
   const cart = useSelector((state) => state?.cart?.cart[0]);
   const navigate = useNavigate();
-    const token = Cookies.get("token");
+  const token = localStorage.getItem("token");
 
   console.log(state, "state collection");
 
@@ -55,7 +54,7 @@ const Header = () => {
   };
 
   const handleWishlist = () => {
-    if(token) {
+    if (token) {
       navigate("/wishlist");
     } else {
       setIsForm(true);
@@ -63,29 +62,32 @@ const Header = () => {
   };
 
   const lockScroll = () => {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.body.style.overflow = 'hidden';
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
     document.body.style.paddingRight = `${scrollbarWidth}px`;
-    
-    const header = document.querySelector('header');
-    if (header && window.getComputedStyle(header).position === 'fixed') {
+
+    const header = document.querySelector("header");
+    if (header && window.getComputedStyle(header).position === "fixed") {
       header.style.paddingRight = `${scrollbarWidth}px`;
     }
   };
 
   const unlockScroll = () => {
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-    
-    const header = document.querySelector('header');
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+
+    const header = document.querySelector("header");
     if (header) {
-      header.style.paddingRight = '';
+      header.style.paddingRight = "";
     }
   };
 
   useEffect(() => {
-    dispatch(fetchCartData());
-  }, []);
+    if(token){
+      dispatch(fetchCartData());
+    }
+  }, [token]);
 
   useEffect(() => {
     if (isform) {
@@ -107,31 +109,32 @@ const Header = () => {
 
   useEffect(() => {
     const closeUserMenu = (event) => {
-      if (showUserMenu && !event.target.closest('.relative')) {
+      if (showUserMenu && !event.target.closest(".relative")) {
         setShowUserMenu(false);
       }
     };
-    document.addEventListener('mousedown', closeUserMenu);
-    return () => document.removeEventListener('mousedown', closeUserMenu);
+    document.addEventListener("mousedown", closeUserMenu);
+    return () => document.removeEventListener("mousedown", closeUserMenu);
   }, [showUserMenu]);
-  
+
   const openSignInModal = () => {
     if (!token) {
-      setIsForm(true); 
+      setIsForm(true);
     } else {
-      setShowUserMenu(!showUserMenu); 
+      setShowUserMenu(!showUserMenu);
     }
   };
 
-  const userlogout = () => {
-    Cookies.remove("token");
-    dispatch(clearWishlist());
-    dispatch(clearCart());
-    navigate("/");
-
+  const UserLoginLogout = () => {
+    if (token) {
+      localStorage.removeItem("token");
+      dispatch(clearWishlist());
+      dispatch(clearCart());
+      navigate("/");
+    } else {
+      setIsForm(true);
+    }
   };
-
-
 
   return (
     <>
@@ -193,28 +196,28 @@ const Header = () => {
                 <SearchIcon className="h-6 w-6 text-gray-700" />
               </button>
 
-              <button 
-                className="py-1.5 cursor-pointer" 
-                aria-label="Wishlist" 
+              <button
+                className="py-1.5 cursor-pointer"
+                aria-label="Wishlist"
                 onClick={() => navigate("/wishlist")}
               >
                 <HeartIcon className="h-6 w-6 text-gray-700" />
               </button>
-              
-              <button 
-                className="py-1.5 cursor-pointer relative" 
+
+              <button
+                className="py-1.5 cursor-pointer relative"
                 aria-label="Shopping cart"
                 onClick={() => navigate("/shopping-cart")}
               >
                 <CartIcon className="h-5 w-5 text-gray-700" />
-               {cart?.total_quantity > 0 && (
-                    <span 
-                      className="absolute top-0 inline-flex items-center justify-center w-4.5 h-4.5 text-[10px]  text-white rounded-full"
-                      style={{ backgroundColor: '#b4853e' }}
-                    >
-                      {cart?.total_quantity}
-                    </span>
-                  )}
+                {cart?.total_quantity > 0 && (
+                  <span
+                    className="absolute top-0 inline-flex items-center justify-center w-4.5 h-4.5 text-[10px]  text-white rounded-full"
+                    style={{ backgroundColor: "#b4853e" }}
+                  >
+                    {cart?.total_quantity}
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -275,15 +278,15 @@ const Header = () => {
                 >
                   <CartIcon className="h-5 w-5 text-gray-700 hover:text-gray-900 transition-colors" />
                   {cart?.total_quantity > 0 && (
-                    <span 
+                    <span
                       className="absolute top-0 inline-flex items-center justify-center w-4.5 h-4.5 text-[10px]  text-white rounded-full"
-                      style={{ backgroundColor: '#b4853e' }}
+                      style={{ backgroundColor: "#b4853e" }}
                     >
                       {cart?.total_quantity}
                     </span>
                   )}
                 </button>
-                
+
                 <div className="relative">
                   <button
                     onClick={openSignInModal}
@@ -292,14 +295,14 @@ const Header = () => {
                   >
                     <UserIcon className="h-6 w-6 text-gray-700 hover:text-gray-900 transition-colors" />
                   </button>
-                  
+
                   {showUserMenu && (
                     <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                       <ul className="py-2">
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() => {
-                            navigate('/profile');
+                            navigate("/profile");
                             setShowUserMenu(false);
                           }}
                         >
@@ -309,7 +312,7 @@ const Header = () => {
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() => {
-                            navigate('/orders');
+                            navigate("/orders");
                             setShowUserMenu(false);
                           }}
                         >
@@ -319,7 +322,7 @@ const Header = () => {
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() => {
-                            navigate('/wishlist');
+                            navigate("/wishlist");
                             setShowUserMenu(false);
                           }}
                         >
@@ -329,17 +332,19 @@ const Header = () => {
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() => {
-                            navigate('/address-book');
+                            navigate("/address-book");
                             setShowUserMenu(false);
                           }}
                         >
                           <MapPin size={18} className="text-gray-600" />
-                          <span className="text-sm font-medium">Address Book</span>
+                          <span className="text-sm font-medium">
+                            Address Book
+                          </span>
                         </li>
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
                           onClick={() => {
-                            navigate('/wallet');
+                            navigate("/wallet");
                             setShowUserMenu(false);
                           }}
                         >
@@ -349,7 +354,7 @@ const Header = () => {
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors text-red-500 border-t border-gray-100 mt-1 pt-2.5"
                           onClick={() => {
-                            userlogout(); 
+                  UserLoginLogout();  
                             setShowUserMenu(false);
                           }}
                         >
@@ -381,8 +386,18 @@ const Header = () => {
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600"
                   aria-label="Close search"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
 
@@ -410,7 +425,7 @@ const Header = () => {
           {/* Mobile Menu Overlay */}
           <div
             className={`fixed inset-0 bg-black/40 transition-opacity duration-300 lg:hidden z-40 ${
-              isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+              isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
             }`}
             onClick={() => setIsMenuOpen(false)}
           ></div>
@@ -418,7 +433,7 @@ const Header = () => {
           {/* Side Drawer Menu */}
           <div
             className={`fixed top-0 left-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-              isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+              isMenuOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >
             {/* Menu Header */}
@@ -427,81 +442,47 @@ const Header = () => {
                 <div className="w-7 h-7 bg-[#b4893e] rounded-full flex items-center justify-center">
                   <UserIcon className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-lg text-[16px] text-black-900">ridham patel</span>
+                <span className="text-lg text-[16px] text-black-900">
+                  ridham patel
+                </span>
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 aria-label="Close menu"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
 
             {/* Scrollable Menu Items Container */}
-            <div className="flex-1 overflow-y-auto" style={{height: 'calc(100vh - 140px)'}}>
-              {/* ACCOUNT Section */}
-              <div className="py-4">
-                { token && (<nav>
-                  <div
-                    onClick={() => {
-                      navigate('/profile');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
-                  >
-                    <User size={20} className="text-gray-600" />
-                    <span>Profile</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      navigate('/orders');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
-                  >
-                    <Package size={20} className="text-gray-600" />
-                    <span>Orders</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      navigate('/wishlist');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
-                  >
-                    <Heart size={20} className="text-gray-600" />
-                    <span>Wishlist</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      navigate('/address-book');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
-                  >
-                    <MapPin size={20} className="text-gray-600" />
-                    <span>Address Book</span>
-                  </div>
-                  <div
-                    onClick={() => {
-                      navigate('/wallet');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center gap-4 px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
-                  >
-                    <Wallet size={20} className="text-gray-600" />
-                    <span>Wallet</span>
-                  </div>
-                </nav> )}
-              </div>
-
-              {/* CATEGORIES Section */}
-              <div className="py-4 border-t border-gray-200">
-                <h3 className="px-6 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">CATEGORIES</h3>
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ height: "calc(100vh - 140px)" }}
+            >
+              <div className="">
                 <nav>
+                  <div
+                    onClick={() => {
+                      navigate(`/`);
+                      setIsMenuOpen(false);
+                    }}
+                    className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                  >
+                    Home
+                  </div>
                   {state?.map((item, i) => (
                     <div
                       key={i}
@@ -511,7 +492,7 @@ const Header = () => {
                       }}
                       className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
                     >
-                      {item.categoryName}
+                      {item?.categoryName}
                     </div>
                   ))}
                 </nav>
@@ -520,16 +501,15 @@ const Header = () => {
 
             {/* Logout Button - Fixed at bottom */}
             <div className="absolute bottom-0 left-0 right-0 bg-white">
-              <button 
+              <button
                 onClick={() => {
-                  userlogout();
+                  UserLoginLogout();
                   setIsMenuOpen(false);
                 }}
                 className="w-full flex items-center justify-center gap-3 bg-[#b4893e] text-white py-4 mx-6 mb-6 rounded-lg text-[15px] font-medium hover:bg-[#a07835] transition-colors"
-                style={{width: 'calc(100% - 48px)'}}
+                style={{ width: "calc(100% - 48px)" }}
               >
-                <LogOut size={20} />
-                <span>Logout</span>
+                <span>Login / SignUp</span>
               </button>
             </div>
           </div>
@@ -537,7 +517,6 @@ const Header = () => {
       </header>
 
       {/* SignIn Modal */}
-      
     </>
   );
 };
