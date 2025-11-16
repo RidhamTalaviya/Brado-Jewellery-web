@@ -57,6 +57,12 @@ const Wrapper = () => {
     <>
     <LoggingContext.Provider value={{isform, setIsForm , closeSignInModal}}>
       {loading && <Loader />}
+      <div className="bg-[#544f49] text-white text-[10px] sm:text-[12px] tracking-wider text-center py-2 px-2">
+          <span className="hidden sm:inline">
+            Free shipping on orders of 6 items or more
+          </span>
+          <span className="sm:hidden">Free shipping 6+ items</span>
+        </div>
       <Header  />
       <SubHeader />
       <div>

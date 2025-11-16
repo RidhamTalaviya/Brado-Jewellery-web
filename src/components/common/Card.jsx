@@ -118,24 +118,26 @@ const Card = ({ product }) => {
 
           {/* Heart Icon */}
           <div
-            className={`absolute top-3 right-3 transition-opacity duration-300 ${
-              isInWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-            }`}
-          >
-            <button
-              onClick={handleWishlistToggle}
-              disabled={isLoading}
-              className={`rounded-full p-2 shadow cursor-pointer transition ${
-                isInWishlist ? "bg-white" : "bg-black/40"
-              }`}
-            >
-              <Heart
-                className={`w-5 h-5 transition-colors ${
-                  isInWishlist ? "text-red-500 fill-red-500" : "text-gray-200"
-                }`}
-              />
-            </button>
-          </div>
+  className={`absolute top-3 right-3 transition-opacity duration-300 ${
+    isInWishlist
+      ? "opacity-100" // If in wishlist, always show on all screen sizes
+      : "opacity-100 lg:opacity-0 lg:group-hover:opacity-100" // Otherwise, show on mobile, but hide and use hover on desktop
+  }`}
+>
+  <button
+    onClick={handleWishlistToggle}
+    disabled={isLoading}
+    className={`rounded-full p-2 shadow cursor-pointer transition ${
+      isInWishlist ? "bg-white" : "bg-black/40"
+    }`}
+  >
+    <Heart
+      className={`w-5 h-5 transition-colors ${
+        isInWishlist ? "text-red-500 fill-red-500" : "text-gray-200"
+      }`}
+    />
+  </button>
+</div>
 
           {/* Add to Cart */}
           <div

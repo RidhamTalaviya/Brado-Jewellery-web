@@ -24,12 +24,7 @@ export const addToWishlist = createAsyncThunk(
 
       console.log(productId , "productId")
       const response = await axiosInstance.post('/wishlist/add', {productId} , {withCredentials:true});
-      toast.success(response?.message || 'Product added to wishlist', {
-        position: 'top-right',
-        autoClose: 2000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Product added to wishlist');
       if(response?.success){
         dispatch(fetchWishlist());
       }
@@ -46,12 +41,7 @@ export const removeFromWishlist = createAsyncThunk(
   async (productId, { rejectWithValue , dispatch}) => {
     try {
       const response = await axiosInstance.delete('/wishlist/remove/' + productId , {withCredentials:true});
-      toast.success(response?.message || 'Product removed from wishlist', {
-        position: 'top-right',
-        autoClose: 2000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Product removed from wishlist');
       if(response?.success){
         dispatch(fetchWishlist());
       }

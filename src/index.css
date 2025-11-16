@@ -47,34 +47,6 @@ body {
   background-color: #b5853b; /* gold-ish color */
 }
 
-.Toastify__toast {
-  font-size: 13px;   /* smaller font */
-}
-
-/* Round button pulse animation */
-
-
-/* Order Success Checkmark Animation
-@keyframes border-scale1 {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-.pulse-border { 
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 0px solid #15803d;
-  background: #0b6e4080;
-  animation: border-scale1 1.5s ease-in-out infinite;
-  z-index: 0;
-} */
 
 /* Apply Coupon Button */
 .apply-coupon-btn {
@@ -167,4 +139,75 @@ body {
   background: #0b6e4080;
   animation: border-scale1 1.5s ease-in-out infinite;
   z-index: 0;
+}
+
+
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #b5853b; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a77b38; 
+}
+
+
+.Toastify__toast {
+  font-size: 13px !important; /* smaller font */
+
+}
+
+
+
+/*
+  This media query targets mobile screens (768px and smaller),
+  which is the same breakpoint react-toastify uses.
+*/
+@media screen and (max-width: 768px) {
+  
+  /* We target the specific container we set in React 
+    (the one that's 'bottom-right' on desktop) 
+  */
+  .Toastify__toast-container--bottom-right {
+    
+    /* Undo the default 'bottom-right' desktop styles */
+    right: auto;
+    bottom: auto;
+
+    /* Apply new 'bottom-center' styles for mobile,
+      matching your screenshot '225059.png'
+    */
+    left: 50%;
+    bottom: 20px; /* Adjust this value to change vertical space from bottom */
+    transform: translateX(-50%);
+
+    /* Undo the library's default 'full-width' mobile style
+      to make it a floating box instead
+    */
+    width: auto;
+    max-width: 90vw; /* Ensures it doesn't get too wide on small screens */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* The library also removes border-radius on mobile.
+    This rule adds it back so your toasts stay rounded.
+  */
+  .Toastify__toast-container--bottom-right .Toastify__toast {
+    border-radius: var(--toastify-toast-radius, 4px); /* Use library default or set your own */
+    margin: 0.5rem; /* Add some spacing back */
+  }
 }

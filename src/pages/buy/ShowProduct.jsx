@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Thumbs, FreeMode } from "swiper/modules";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,6 +22,8 @@ import { showProductData } from "../../redux/slices/product/productSlice";
 import { createCartData  } from "../../redux/slices/cartSlice";
 import { Heart } from "lucide-react";
 import { addToWishlist, removeFromWishlist } from "../../redux/slices/wishlistSlice";
+import { LoggingContext } from "../../Context/LoggingContext";
+import Breadcrumb from "../../components/common/Breadcrumb";
 
 const Arrow = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,6 +168,9 @@ const ShareModal = ({ isOpen, onClose }) => {
 
 export default function ShowProduct() {
   const [shareModal, setShareModal] = useState(false);
+    const { isform, setIsForm } = useContext(LoggingContext);
+    const token = localStorage.getItem("token");
+  
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [expandedSections, setExpandedSections] = useState({
@@ -214,20 +219,31 @@ const handleAddToWishlist = (id) => {
 
 }
   const addToCart = (id) => {
-
+if(token){
+  if(state?.stock === 0){
+    toast.error("Out of Stock");
+    return;
+  }
     dispatch(createCartData({
       productId: id,
       quantity: quantity,
     }))
     
+}else{
+  setIsForm(true);
+}
   }
-
+  
   const handleBuyNow = (id) => {
+if(token){
     dispatch(createCartData({
       productId: id,
       quantity: quantity,
     }))
     navigate(`/shopping-cart`);
+}else{
+  setIsForm(true);
+}
   }
 
 
@@ -241,6 +257,10 @@ const handleAddToWishlist = (id) => {
   };
 
   const handleQuantityChange = (type) => {
+
+    if(state?.stock === 0){
+      return;
+    }
     if (type === "increase") {
       if(quantity < state?.stock){
         setQuantity((prev) => prev + 1);
@@ -313,20 +333,9 @@ const handleAddToWishlist = (id) => {
 
   return (
     <>
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500 bg-[#f4f3ef] mb-6 w-full">
-        <div className="w-[90%] mx-auto flex items-center py-2">
-          <span className="text-gray-400 font-medium">Home</span>
-          <span className="mx-2">
-            <Arrow className="w-4 h-4 rotate-180" />
-          </span>
-          <span className="text-gray-600 font-medium">{state?.category?.categoryName || "Product"}</span>
-          <span className="mx-2">
-            <Arrow className="w-4 h-4 rotate-180" />
-          </span>
-          <span className="text-gray-600 font-medium">{state?.name}</span>
-        </div>
-      </nav>
+   
+          <Breadcrumb label={state?.name} />
+
 
       <div className="max-w-7xl w-[90%] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -456,7 +465,7 @@ const handleAddToWishlist = (id) => {
                     <button onClick={() => handleQuantityChange("decrease")} className="p-2 hover:bg-gray-50 transition-colors">
                       <MinusIcon className="w-4 h-4" />
                     </button>
-                    <span className="px-4 py-2">{quantity}</span>
+                    <span className="px-4 py-2">{state?.stock == 0 ? 0 : quantity}</span>
                     <button onClick={() => handleQuantityChange("increase")} className="p-2 hover:bg-gray-50 transition-colors">
                       <PlusIcon className="w-4 h-4" />
                     </button>

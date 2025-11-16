@@ -13,6 +13,7 @@ import { clearCart, fetchCartData } from "../../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { clearWishlist } from "../../../redux/slices/wishlistSlice";
 import { LoggingContext } from "../../../Context/LoggingContext";
+import { getuserprofile } from "../../../redux/slices/authSlice";
 
 const Header = () => {
   const [query, setQuery] = useState("");
@@ -26,6 +27,13 @@ const Header = () => {
   const cart = useSelector((state) => state?.cart?.cart[0]);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  
+useEffect(() => {
+  if(token)
+  {
+    dispatch(getuserprofile());
+  }
+}, [token]);
 
   console.log(state, "state collection");
 
@@ -82,9 +90,9 @@ const Header = () => {
       header.style.paddingRight = "";
     }
   };
-
+  const profile = useSelector((state) => state?.auth?.profile?.data);
   useEffect(() => {
-    if(token){
+    if (token) {
       dispatch(fetchCartData());
     }
   }, [token]);
@@ -138,19 +146,10 @@ const Header = () => {
 
   return (
     <>
-      <header className="w-full">
-        {/* Top Bar */}
-        <div className="bg-[#544f49] text-white text-[10px] sm:text-[12px] tracking-wider text-center py-2 px-2">
-          <span className="hidden sm:inline">
-            Free shipping on orders of 6 items or more
-          </span>
-          <span className="sm:hidden">Free shipping 6+ items</span>
-        </div>
-
-        {/* Main Header */}
+      <header className="w-full sticky lg:relative top-0 z-50 ">
         <div className="bg-white border-b border-gray-200">
           {/* Mobile Header */}
-          <div className="lg:hidden relative flex items-center py-2 px-3">
+          <div className="lg:hidden top-0 z-50 relative flex items-center py-2 px-3">
             {/* Left: Menu Button */}
             <div className="z-10">
               <button
@@ -354,7 +353,7 @@ const Header = () => {
                         <li
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors text-red-500 border-t border-gray-100 mt-1 pt-2.5"
                           onClick={() => {
-                  UserLoginLogout();  
+                            UserLoginLogout();
                             setShowUserMenu(false);
                           }}
                         >
@@ -443,7 +442,7 @@ const Header = () => {
                   <UserIcon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-lg text-[16px] text-black-900">
-                  ridham patel
+                  {token ? profile?.name : "Guest"}
                 </span>
               </div>
               <button
@@ -495,6 +494,57 @@ const Header = () => {
                       {item?.categoryName}
                     </div>
                   ))}
+                  {token && (
+                    <div>
+                      <div
+                        onClick={() => {
+                          navigate("/profile");
+                          setIsMenuOpen(false);
+                        }}
+                        className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                      >
+                        Profile
+                      </div>
+
+                      <div
+                        className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          navigate("/orders");
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Orders
+                      </div>
+                      <div
+                        className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          navigate("/wishlist");
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Wishlist
+                      </div>
+                      <div
+                        className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          navigate("/address-book");
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Address Book
+                      </div>
+                      <div
+                        className="px-6 py-3 text-gray-900 transition-colors text-[15px] font-normal cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          navigate("/wallet");
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Wallet
+                      </div>
+                     
+                    </div>
+                  )}
                 </nav>
               </div>
             </div>
@@ -502,14 +552,14 @@ const Header = () => {
             {/* Logout Button - Fixed at bottom */}
             <div className="absolute bottom-0 left-0 right-0 bg-white">
               <button
-                onClick={() => {
-                  UserLoginLogout();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-3 bg-[#b4893e] text-white py-4 mx-6 mb-6 rounded-lg text-[15px] font-medium hover:bg-[#a07835] transition-colors"
+              onClick={() => {
+                UserLoginLogout();
+                setIsMenuOpen(false);
+              }}
+                className="w-full cursor-pointer flex items-center justify-center gap-3 bg-[#b4893e] text-white py-4 mx-6 mb-6 rounded-lg text-[15px] font-medium hover:bg-[#a07835] transition-colors"
                 style={{ width: "calc(100% - 48px)" }}
               >
-                <span>Login / SignUp</span>
+               {token ? <span className="">Logout</span> : <span>Login / SignUp</span>}
               </button>
             </div>
           </div>

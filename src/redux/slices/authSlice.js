@@ -17,12 +17,7 @@ export const signInUser = createAsyncThunk(
     try {
       console.log(payload , " 34567654321`2345678654321`23456789765432112345678976543212345678976543213456789765432345678")
       const response = await axiosInstance.post('/auth/signin', payload);
-      toast.success(response?.message || 'Signed in', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Signed in');
       console.log(response)
       if(response.success)
       {
@@ -31,12 +26,7 @@ export const signInUser = createAsyncThunk(
       return response; 
       
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error signing in', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.error(error?.response?.data?.message || 'Error signing in');
       return rejectWithValue(error.response?.data);
     }
   }
@@ -49,12 +39,12 @@ export const otpVerify = createAsyncThunk(
       const response = await axiosInstance.post('/auth/verify-otp', {id:payload.id, otp:payload.otp} , {withCredentials:true});
       localStorage.setItem("token", response?.token);
 
-      toast.success(response?.message || 'Verified', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      if(response.success)
+      {
+        dispatch(getuserprofile());
+      }
+
+      toast.success(response?.message || 'Verified');
       if(response.success)
       {
         payload?.data();
@@ -66,12 +56,7 @@ export const otpVerify = createAsyncThunk(
       
     } catch (error) {
       payload?.setIsVerifying(false);
-      toast.error(error?.response?.data?.message || 'Error signing in', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.error(error?.response?.data?.message || 'Error signing in');
       return rejectWithValue(error.response?.data);
     }
   }
@@ -87,21 +72,11 @@ export const resendOTP = createAsyncThunk(
     {
       payload?.setResendTimer(120);
     }
-      toast.success(response?.message || 'Resend OTP', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Resend OTP');
       return response; 
       
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error Resend OTP', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.error(error?.response?.data?.message || 'Error Resend OTP');
       return rejectWithValue(error.response?.data);
     }
   }
@@ -112,23 +87,14 @@ export const updateuserprofile = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('/auth/update', payload);
-      toast.success(response?.message || 'Profile updated', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Profile updated');
       return response;
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error updating profile', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.error(error?.response?.data?.message || 'Error updating profile');
       return rejectWithValue(error.response?.data);
     }
   }
+
 );
 
 export const getuserprofile = createAsyncThunk(

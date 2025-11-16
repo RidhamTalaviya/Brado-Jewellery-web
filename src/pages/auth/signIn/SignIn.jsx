@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { otpVerify, resendOTP, signInUser } from "../../../redux/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-
+import Google from "../../../assets/icons/Google";
 
 const CloseIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -9,13 +9,13 @@ const CloseIcon = ({ className }) => (
   </svg>
 );
 
-const SignIn = ({ open, onClose , data }) => {
+const SignIn = ({ open, onClose, data }) => {
   const [model, setModel] = useState("email"); // Controls which view to show
   const [email, setEmail] = useState("");
   const [keepUpdates, setKeepUpdates] = useState(true);
   const [errors, setErrors] = useState({});
   const [isSendingOTP, setIsSendingOTP] = useState(false);
-  
+
   // OTP related states
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [resendTimer, setResendTimer] = useState(60);
@@ -24,44 +24,45 @@ const SignIn = ({ open, onClose , data }) => {
   const dispatch = useDispatch();
   const state = useSelector((state) => state?.auth);
 
-
   const isModal = open !== undefined;
 
   if (isModal && !open) return null;
+
   useEffect(() => {
     if (resendTimer > 0 && model === "otp") {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [resendTimer, model]);
+
   useEffect(() => {
-    if (model === "otp" && otp.every(digit => digit !== "")) {
+    if (model === "otp" && otp.every((digit) => digit !== "")) {
       handleOTPComplete(otp.join(""));
     }
   }, [otp, model]);
+
   useEffect(() => {
     console.log("isSendingOTP changed:", isSendingOTP);
   }, [isSendingOTP]);
-
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       setErrors({ email: "Email is required" });
       return;
     }
-    
+
     if (!validateEmail(email.trim())) {
       setErrors({ email: "Please enter a valid email address" });
       return;
     }
-    
+
     setErrors({});
     setIsSendingOTP(true);
-    
+
     try {
       await dispatch(signInUser({ email: email, setModel }));
       setResendTimer(120);
@@ -76,7 +77,7 @@ const SignIn = ({ open, onClose , data }) => {
   const handleOTPChange = (element, index) => {
     if (isNaN(element.value)) return false;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
-    
+
     if (element.nextSibling && element.value !== "") {
       element.nextSibling.focus();
     }
@@ -91,22 +92,40 @@ const SignIn = ({ open, onClose , data }) => {
     }
   };
 
+  // --- NEW ---
+  // New function to handle pasting
+  const handlePaste = (e) => {
+    e.preventDefault(); // Stop the browser from pasting text normally
+    const pasteData = e.clipboardData.getData("text");
+
+    // Check if the pasted data is exactly 6 digits
+    if (pasteData.length === 6 && /^[0-9]{6}$/.test(pasteData)) {
+      const newOtp = pasteData.split(""); // ["8", "4", "1", "0", "5", "1"]
+      setOtp(newOtp);
+
+      // Optional: Focus the last input box after pasting
+      if (inputRefs.current[5]) {
+        inputRefs.current[5].focus();
+      }
+    }
+  };
+  // --- END NEW ---
+
   const handleOTPComplete = async (otpValue) => {
     setIsVerifying(true);
     setErrors({});
-    dispatch(otpVerify({ id:state?.id, otp: + otpValue , setIsVerifying , data }));
+    dispatch(otpVerify({ id: state?.id, otp: +otpValue, setIsVerifying, data }));
   };
 
   const otpVerifyNext = () => {
     handleOTPComplete(otp.join(""));
-  } 
- 
+  };
 
-  const handleResendOTP = () => { 
+  const handleResendOTP = () => {
     // setResendTimer(120);
     setErrors({});
-    
-    dispatch(resendOTP({ id : state?.id , setResendTimer }));
+
+    dispatch(resendOTP({ id: state?.id, setResendTimer }));
   };
 
   const handleBackToEmail = () => {
@@ -120,7 +139,7 @@ const SignIn = ({ open, onClose , data }) => {
   const renderEmailView = () => (
     <div className="bg-white lg:!w-[40%] !w-[90%] rounded-sm shadow-lg relative p-6 animate-fadeIn">
       {isModal && (
-        <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onClick={onClose}>
+        <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer" onClick={onClose}>
           <CloseIcon className="w-5 h-5" />
         </button>
       )}
@@ -131,14 +150,14 @@ const SignIn = ({ open, onClose , data }) => {
       <p style={{ wordSpacing: "4px" }} className="text-center text-[#000000] text-[14px] mb-4 font-medium">
         Please submit your email address to continue
       </p>
-
-      <button 
-        className="w-[50%] mx-auto flex items-center justify-center gap-2 border border-gray-200 rounded-md py-2 mb-3 hover:bg-blue-50 hover:border-blue-200 disabled:opacity-50 transition cursor-pointer"
+<div className="flex justify-center">
+      <button
+        className=" w-[70%] md:w-[50%]  flex items-center justify-center gap-2 border border-gray-200 rounded-md py-2  hover:bg-blue-50 hover:border-blue-200 disabled:opacity-50 transition cursor-pointer"
       >
-        <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="w-5 h-5" />
+        <Google className="w-5 h-5" />
         Sign in with Google
       </button>
-
+</div>
       <div className="flex items-center my-3">
         <div className="flex-grow border-t border-gray-200"></div>
         <span className="px-2 text-gray-400 text-sm">or</span>
@@ -148,7 +167,7 @@ const SignIn = ({ open, onClose , data }) => {
       <form onSubmit={handleEmailSubmit}>
         <div className="relative mb-3">
           <input
-            type="text" 
+            type="text"
             id="email"
             value={email}
             onChange={(e) => {
@@ -174,19 +193,19 @@ const SignIn = ({ open, onClose , data }) => {
         </div>
 
         <label className="flex items-center gap-2 text-sm mb-4">
-          <input 
-            type="checkbox" 
-            className="accent-[#b4853e]" 
+          <input
+            type="checkbox"
+            className="accent-[#b4853e]"
             checked={keepUpdates}
             onChange={(e) => setKeepUpdates(e.target.checked)}
           />
           Keep up with our latest news and events.
         </label>
 
-        <button 
+        <button
           type="submit"
           disabled={isSendingOTP}
-          className="w-full bg-[#b4853e] text-white py-2 rounded-md hover:bg-[#996f2d] transition disabled:opacity-50"
+          className="w-full bg-[#b4853e] text-white py-2 rounded-md hover:bg-[#996f2d] transition disabled:opacity-50 cursor-pointer"
         >
           {isSendingOTP ? "Sending OTP..." : "Next"}
         </button>
@@ -199,7 +218,7 @@ const SignIn = ({ open, onClose , data }) => {
     <div className="bg-white w-[90%] max-w-lg rounded-sm shadow-lg relative p-6 animate-fadeIn">
       {isModal && (
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer"
           onClick={onClose}
         >
           <CloseIcon className="w-5 h-5" />
@@ -212,7 +231,7 @@ const SignIn = ({ open, onClose , data }) => {
       >
         Verify OTP
       </h2>
-      
+
       <p className="text-center text-gray-600 text-[13px] mb-6 font-medium">
         Enter the 6-digit code sent to <span className="font-bold">{email}</span>
       </p>
@@ -223,16 +242,27 @@ const SignIn = ({ open, onClose , data }) => {
           <input
             key={index}
             ref={(el) => (inputRefs.current[index] = el)}
-            type="text"
+            
+            // --- UPDATED ---
+            type="text"         // Changed from "number"
+            inputMode="numeric" // Added for mobile numeric keyboard
+            // --- END UPDATED ---
+
             maxLength="1"
             value={data}
             onChange={(e) => handleOTPChange(e.target, index)}
             onKeyDown={(e) => handleOTPKeyDown(e, index)}
+
+            // --- UPDATED ---
+            // Add the onPaste handler only to the first box
+            onPaste={index === 0 ? handlePaste : undefined}
+            // --- END UPDATED ---
+
             className="w-12 h-15 border-1 border-gray-300 focus:border-[#b4853e] rounded-md text-center text-lg font-semibold outline-none"
           />
         ))}
       </div>
-      
+
       {/* Resend Timer */}
       <div className="text-center mb-4">
         {resendTimer > 0 ? (
@@ -280,4 +310,4 @@ const SignIn = ({ open, onClose , data }) => {
   );
 };
 
-export default SignIn;
+export default SignIn

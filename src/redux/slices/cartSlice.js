@@ -25,24 +25,14 @@ export const createCartData = createAsyncThunk(
   async (productId, { rejectWithValue , dispatch }) => {
     try {
       const response = await axiosInstance.post('/cart/add', productId);
-      toast.success(response?.message || 'Cart Data Created', {
-        position: 'top-right',
-        autoClose: 2000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.success(response?.message || 'Cart Data Created');
 
       if(response?.success){
         dispatch(fetchCartData());        
       }
       return response.data; 
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error Creating Cart Data', {
-        position: 'top-right',
-        autoClose: 5000,
-        pauseOnHover: true,
-        transition: Bounce,
-      });
+      toast.error(error?.response?.data?.message || 'Error Creating Cart Data');
       return rejectWithValue(error.response?.data);
     }
   }
