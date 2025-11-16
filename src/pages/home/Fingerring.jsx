@@ -24,7 +24,6 @@ function Fingerring() {
    const [ringData, setRingData] = useState([]);
   const fetchRingData = async () => {
     const response = await axiosInstance("/product/get?category=finger-ring");
-    console.log(response , "riya bava");
     setRingData(response?.data?.products);
   };
 

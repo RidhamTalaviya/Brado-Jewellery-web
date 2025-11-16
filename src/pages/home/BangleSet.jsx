@@ -23,7 +23,6 @@ function BangleSet() {
    const [banglesData, setBanglesData] = useState([]);
   const fetchBanglesData = async () => {
     const response = await axiosInstance("/product/get?category=bangles");
-    console.log(response , "riya bava");
     setBanglesData(response?.data?.products);
   };
 

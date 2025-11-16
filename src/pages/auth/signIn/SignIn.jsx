@@ -41,10 +41,6 @@ const SignIn = ({ open, onClose, data }) => {
     }
   }, [otp, model]);
 
-  useEffect(() => {
-    console.log("isSendingOTP changed:", isSendingOTP);
-  }, [isSendingOTP]);
-
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleEmailSubmit = async (e) => {

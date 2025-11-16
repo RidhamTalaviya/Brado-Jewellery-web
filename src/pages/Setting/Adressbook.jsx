@@ -13,7 +13,6 @@ export default function AddressManager() {
   const dispatch = useDispatch();
   const { addresses, status, error } = useSelector((state) => state.address);
 
-  console.log("addresses:", addresses);
   
   const [INDIAN_STATES] = useState(indianStateList);
   const [isModalOpen, setIsModalOpen] = useState(false);

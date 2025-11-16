@@ -11,6 +11,7 @@ import { useLoading } from "../../Context/LoadingContext";
 import Loader from "../../components/Loader";
 import { LoggingContext } from "../../Context/LoggingContext";
 import SignIn from "../../pages/auth/signIn/SignIn";
+import { fetchCarouselData } from "../../redux/slices/carouselSlice";
 
 const Wrapper = () => {
   const dispatch = useDispatch();
@@ -18,19 +19,16 @@ const Wrapper = () => {
 
   useEffect(() => {
     dispatch(fetchCollectionsData());
+    dispatch(fetchCarouselData());
   }, [dispatch]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       dispatch(fetchWishlist()).then(() => {
-        console.log("Wishlist fetched successfully");
       }).catch((error) => {
-        console.error("Failed to fetch wishlist:", error);
       });
-    } else {
-      console.log("No token found, skipping wishlist fetch");
-    }
+    } 
   }, [dispatch]); 
 
    const location = useLocation();

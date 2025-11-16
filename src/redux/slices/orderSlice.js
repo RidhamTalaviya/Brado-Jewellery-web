@@ -8,8 +8,6 @@ export const createOrder = createAsyncThunk(
     try {
       const response = await axiosInstance.post('/orders/create', orderData);
 
-      console.log(response.data , "response");
-
       if(response?.success){
         dispatch(clearCartData());        
       }
@@ -27,8 +25,6 @@ export const getOrder = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get('/orders/getorderbyuser');
-
-      console.log(response.data , "response");
       return response; 
 
 
@@ -44,8 +40,6 @@ export const editorder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.put('/orders/changeOrderStatus', orderData);
-
-      console.log(response.data , "response");
       return response; 
 
 
@@ -59,8 +53,6 @@ export const getorderbyorderid = createAsyncThunk(
   async (orderId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/orders/getorderbyid/${orderId}`);
-
-      console.log(response.data , "response");
       return response; 
 
 

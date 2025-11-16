@@ -58,13 +58,8 @@ function Wish() {
 
   const handleAddToCart = async (productId) => {
     try {
-      console.log("Removing from wishlist...");
       dispatch(removeFromWishlist(productId));
-  
-      console.log("Adding to cart...");
       dispatch(createCartData({productId}));
-  
-      console.log("✅ Product moved from wishlist to cart");
     } catch (error) {
       console.error('❌ Error adding to cart:', error);
     }

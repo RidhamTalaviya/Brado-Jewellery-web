@@ -43,10 +43,7 @@ export default function Heroslider() {
   const state = useSelector((state) => state.carousel);
 
   // Fetch carousel data on component mount
-  useEffect(() => {
-      dispatch(fetchCarouselData());
-    }
-  , [dispatch]);
+ 
 
   // Handle window resize to toggle between desktop and mobile images
   useEffect(() => {

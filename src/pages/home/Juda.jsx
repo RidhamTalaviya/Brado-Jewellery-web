@@ -21,7 +21,6 @@ function Juda() {
    const [judasData, setJudasData] = useState([]);
   const fetchJudasData = async () => {
     const response = await axiosInstance("/product/get?category=juda");
-    console.log(response , "riya bava");
     setJudasData(response?.data?.products);
   };
 

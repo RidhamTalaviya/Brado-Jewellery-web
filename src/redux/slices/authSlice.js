@@ -15,10 +15,8 @@ export const signInUser = createAsyncThunk(
   'auth/signInUser',
   async (payload , { rejectWithValue }) => {
     try {
-      console.log(payload , " 34567654321`2345678654321`23456789765432112345678976543212345678976543213456789765432345678")
       const response = await axiosInstance.post('/auth/signin', payload);
       toast.success(response?.message || 'Signed in');
-      console.log(response)
       if(response.success)
       {
         payload.setModel("otp");
@@ -35,7 +33,6 @@ export const otpVerify = createAsyncThunk(
   'auth/otpVerify',
   async (payload, { rejectWithValue , dispatch }) => {
     try {
-      console.log(payload , " ")
       const response = await axiosInstance.post('/auth/verify-otp', {id:payload.id, otp:payload.otp} , {withCredentials:true});
       localStorage.setItem("token", response?.token);
 
@@ -125,12 +122,9 @@ const authSlice = createSlice({
       })
       .addCase(signInUser.fulfilled, (state, action) => {
         state.loading = false;
-        // console.log('State:', state, 'Action:', action, 'Payload:', action.payload);
         if (action.payload && action.payload._id) {
           state.id = action.payload._id;
           state.user = action.payload;
-        } else {
-          console.warn('No _id found in payload:', action.payload);
         }
       })
       .addCase(signInUser.rejected, (state, action) => {

@@ -195,10 +195,7 @@ export default function ShowProduct() {
   const slug = useParams().slug;
   const state = useSelector((state) => state?.product?.showProductData?.[0]);
 
-  console.log(state , "state");
   const wishlistItems = useSelector((state) => state?.wishlist?.wishlist || []);
-
-  console.log(wishlistItems , "wishlistItems");
 
  useEffect(() => {
     const isProductInWishlist = wishlistItems.some(
@@ -210,10 +207,8 @@ export default function ShowProduct() {
 const handleAddToWishlist = (id) => {
 
   if(isWishlist){
-    console.log(isWishlist , "isWishlist")
     dispatch(removeFromWishlist(id));
   }else{
-    console.log(isWishlist , "isWishlist")
     dispatch(addToWishlist(id));
   }
 

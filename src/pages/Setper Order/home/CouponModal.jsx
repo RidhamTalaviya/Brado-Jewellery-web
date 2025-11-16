@@ -17,7 +17,6 @@ const CouponModal = ({ showCouponModal, setShowCouponModal, appliedCoupon, setAp
   const [couponInput, setCouponInput] = useState('');
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
-  console.log(appliedCoupon, "appliedCoupon CouponModal");
 
   useEffect(() => {
     dispatch(fetchCouponData());
@@ -45,7 +44,6 @@ const CouponModal = ({ showCouponModal, setShowCouponModal, appliedCoupon, setAp
         await dispatch(fetchCartData(selectedCoupon.code)).unwrap();
         
         // Set the applied coupon ID
-        console.log(selectedCoupon , "selectedCoupon selectedCoupon")
         setAppliedCoupon(selectedCoupon._id);
         
         setShowCouponModal(false);

@@ -6,7 +6,6 @@ export const fetchCouponData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get('/coupon/get');
-      console.log(response , "response");
 
       return response; 
 

@@ -18,7 +18,6 @@ const Shipment = () => {
   const [reviewEligibility, setReviewEligibility] = useState({});
 
 
-  console.log(reviewEligibility , "reviewEligibility");
   const [reviewData, setReviewData] = useState({
     title: '',
     comment: '',
@@ -37,7 +36,6 @@ const Shipment = () => {
       setLoading(true);
       const response = await axiosInstance.get(`/orders/getorderbyorderid/${orderId}`);
 
-      console.log(response.data , "response.data");
       setOrderData(response.data);
       setLoading(false);
     } catch (err) {
@@ -51,7 +49,6 @@ const Shipment = () => {
       
       for (const item of orderData.items) {
 
-        console.log(item.productId , "item.productId");
         const result = await checkReviewEligibility(item.productId);
 
 
@@ -60,7 +57,6 @@ const Shipment = () => {
         
       }
       
-      console.log(eligibilityChecks , "eligibilityChecks");
       setReviewEligibility(eligibilityChecks);
     }
   };
@@ -78,7 +74,6 @@ const checkReviewEligibility = async (productId) => {
         orderId: orderData._id
       }
     });
-    console.log(response.reviewData , "response.reviewData");
     return response;
   } catch (err) {
     console.error('Error checking review eligibility:', err);

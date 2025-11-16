@@ -35,7 +35,6 @@ const Profile = () => {
   };
 
   const profile = useSelector((state) => state?.auth?.profile?.data);
-  console.log(profile, "profile");
 
   const dispatch = useDispatch();
 
@@ -74,7 +73,6 @@ const Profile = () => {
       isnewslettersubscribed: isNewsletterSubscribed,
     };
 
-    console.log('Updating profile with:', updateData);
     dispatch(updateuserprofile(updateData))
       .unwrap()
       .then(() => {

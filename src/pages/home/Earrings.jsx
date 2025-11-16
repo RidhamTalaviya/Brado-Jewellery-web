@@ -26,7 +26,6 @@ function Earrings() {
    const [earringsData, setEarringsData] = useState([]);
   const fetchEarringsData = async () => {
     const response = await axiosInstance("/product/get?category=earrings");
-    console.log(response , "riya bava");
     setEarringsData(response?.data?.products);
   };
 

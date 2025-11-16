@@ -35,8 +35,6 @@ useEffect(() => {
   }
 }, [token]);
 
-  console.log(state, "state collection");
-
   const products = ["Necklace", "Earrings", "Ring", "Bracelet", "Hand Bag"];
 
   const handleSearch = (e) => {

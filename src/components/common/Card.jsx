@@ -24,7 +24,6 @@ const BADGE_COLORS = {
 const Card = ({ product }) => {
   const { isform, setIsForm } = useContext(LoggingContext);
 
-  console.log(product);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");

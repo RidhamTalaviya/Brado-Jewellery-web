@@ -131,7 +131,6 @@ const Category = () => {
   /* ───── CATEGORY CHANGE RESET ───── */
   useEffect(() => {
     if (currentCategoryRef.current !== categoryName) {
-      console.log('🔄 Category changed to:', categoryName);
       currentCategoryRef.current = categoryName;
       hasFetchedRef.current = '';
       setSelectedFilters({});
@@ -161,7 +160,6 @@ const Category = () => {
     if (hasFetchedRef.current === key) return;
     hasFetchedRef.current = key;
 
-    console.log('🔥 INITIAL API CALL (No filters):', initialParams);
     dispatch(allProductData(initialParams));
     setIsInitialLoad(false); // ⭐ Mark initial load as complete
   }, [categoryName, isInitialLoad, dispatch, limit]);
@@ -169,7 +167,6 @@ const Category = () => {
   /* ───── PRICE RANGE INITIALIZATION FROM API RESPONSE ───── */
   useEffect(() => {
     if (apiPriceRange && apiPriceRange.max > 0 && !initialPriceSetRef.current) {
-      console.log('💰 Setting price range from API:', apiPriceRange);
       setPriceRange(apiPriceRange);
       setSelectedPriceRange([apiPriceRange.min, apiPriceRange.max]);
       setIsPriceInitialized(true);
@@ -226,12 +223,10 @@ const Category = () => {
 
     const key = `${categoryName}-${JSON.stringify(filterParams)}`;
     if (hasFetchedRef.current === key) {
-      console.log('⏭️ Skipping duplicate API call');
       return;
     }
     hasFetchedRef.current = key;
 
-    console.log('🔥 FILTER API CALL:', filterParams);
     dispatch(allProductData(filterParams));
   }, [categoryName, isInitialLoad, filterParams, isPriceInitialized, dispatch]);
 

@@ -24,7 +24,6 @@ function Menbracelet() {
    const [menbraceletData, setMenbraceletData] = useState([]);
   const fetchMenbraceletData = async () => {
     const response = await axiosInstance("/product/get?category=mens-bracelet");
-    console.log(response , "riya bava");
     setMenbraceletData(response?.data?.products);
   };
 

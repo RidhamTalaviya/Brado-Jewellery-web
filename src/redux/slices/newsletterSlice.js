@@ -11,7 +11,6 @@ export const createNewsletter = createAsyncThunk(
       toast.success(response?.message || 'Newsletter created successfully', {
         transition: Flip,
       });
-      console.log(response, "response")
       if(response.success)
         {
           payload.setEmail("");
@@ -20,7 +19,6 @@ export const createNewsletter = createAsyncThunk(
       
       
     } catch (error) {
-      console.log( error, "234567890-=")
         toast.error(error?.response?.data?.error || 'Error creating newsletter', {
             transition: Bounce,
           });

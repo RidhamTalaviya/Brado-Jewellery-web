@@ -18,12 +18,8 @@ const CheckoutFlow = () => {
 
   /* ---------- Redux data ---------- */
   const cart = useSelector((state) => state?.cart?.cart[0]); // cart object
-  // console.log(cart , "cart")  
-
-
   
   const [appliedCoupon, setAppliedCoupon] = useState(null); // coupon object (or null)
-  console.log(appliedCoupon , "appliedCoupon , appliedCoupon")
 
   const getStepLabel = (step) => {
   switch (step) {

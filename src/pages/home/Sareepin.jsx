@@ -22,7 +22,6 @@ function Sareepin() {
    const [sareepinData, setSareepinData] = useState([]);
   const fetchSareepinData = async () => {
     const response = await axiosInstance("/product/get?category=saree-pin");
-    console.log(response , "riya bava");
     setSareepinData(response?.data?.products);
   };
 

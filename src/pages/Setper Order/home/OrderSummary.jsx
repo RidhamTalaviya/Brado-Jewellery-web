@@ -7,7 +7,6 @@ const OrderSummary = ({ nextStep, setShowCouponModal, currentStep, prevStep }) =
   const cart = useSelector((state) => state?.cart?.cart[0]);
   const appliedCoupon = useSelector((state) => state?.cart?.coupon);
 
-  console.log(appliedCoupon, "appliedCoupon ORDER summary");
 
   return (
     <div className="bg-white rounded-lg p-6 h-fit">
@@ -43,7 +42,6 @@ const OrderSummary = ({ nextStep, setShowCouponModal, currentStep, prevStep }) =
           <button
             className="text-gray-500 hover:text-red-600"
             onClick={() => {
-              console.log('Remove coupon');
             }}
           >
             <X className="w-4 h-4" />

@@ -22,7 +22,6 @@ export const addToWishlist = createAsyncThunk(
   async (productId, { rejectWithValue , dispatch }) => {
     try {
 
-      console.log(productId , "productId")
       const response = await axiosInstance.post('/wishlist/add', {productId} , {withCredentials:true});
       toast.success(response?.message || 'Product added to wishlist');
       if(response?.success){
